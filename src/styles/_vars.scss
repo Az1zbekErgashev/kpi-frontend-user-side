@@ -1,0 +1,26 @@
+:root {
+  --primary-font: 'Arimo Hebrew Subset', sans-serif;
+  --primary-font-regular: 'Arimo Regular', sans-serif;
+  --default-font: 'Inter';
+  --ant-required-label-font: 'SimSun', sans-serif;
+  --logo-font: 'Arimo Hebrew Subset', sans-serif;
+  --colon-font: 'Crete Round', serif;
+  --primary-blue: #3a7bd5;
+  --secondary-blue: #00d2ff;
+  --dark-blue: #2d5ca9;
+  --light-blue: #e6f0ff;
+  --text-color: #2c3e50;
+  --text-light: #7f8c8d;
+  --background: #f5f9ff;
+  --white: #ffffff;
+  --shadow: rgba(58, 123, 213, 0.15);
+  --glass-shadow: rgba(58, 123, 213, 0.2);
+  --input-border: #dbe4ff;
+  --input-focus: #3a7bd5;
+  --error: #e74c3c;
+  --success: #2ecc71;
+  --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  @media screen and (min-width: 1280px) {
+    --header-height: 115px;
+  }
+}
