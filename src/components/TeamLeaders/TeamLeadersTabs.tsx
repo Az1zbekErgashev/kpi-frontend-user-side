@@ -11,6 +11,7 @@ export function TeamLeadersTabs() {
   const [activeTab, setActiveTab] = useState<string>('1');
   const hookGoal = useGoal();
   const { user } = useUser();
+
   const tabItems = [
     {
       key: '1',
@@ -18,7 +19,7 @@ export function TeamLeadersTabs() {
       children: (
         <div>
           <TeamLeadersFilter month={false} />
-          {user?.role == 'TeamLeaders' && <TeamLeadersList users={hookGoal?.teamLeaders?.data} />}
+          {user?.role == 'TeamLeader' && <TeamLeadersList users={hookGoal?.teamLeaders?.data} />}
           <TeamLeadersList users={hookGoal?.teamMeambers?.data} />
         </div>
       ),
@@ -30,7 +31,7 @@ export function TeamLeadersTabs() {
         <div>
           <TeamLeadersFilter month={true} />
           <ProcessList users={hookGoal?.teamMeambers?.data} />
-          {user?.role == 'TeamLeaders' && <ProcessList users={undefined} />}
+          {user?.role == 'TeamLeader' && <ProcessList users={hookGoal?.teamLeaders?.data} />}
         </div>
       ),
     },

@@ -172,10 +172,6 @@ function useQueryApiClient({ request, onSuccess, onError, onFinally, enabled = t
         Cookies.remove('jwt');
       }
 
-      if (response?.status === 403) {
-        navigate('/for-employers/login', { replace: true });
-      }
-
       if (response?.status >= 500 && window.runConfig.nodeEnv === 'production') {
         navigate('/500');
       }

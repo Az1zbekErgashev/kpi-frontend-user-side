@@ -18,7 +18,7 @@ export function useGoal() {
     request: {
       url: `/api/goal/ceo-goal/${params.year || queryParams?.year}`,
       method: 'GET',
-      disableOnMount: true,
+      disableOnMount: user?.role == 'TeamLeader' ? false : true,
     },
   });
 
@@ -47,7 +47,7 @@ export function useGoal() {
     request: {
       url: '/api/user/team-leader',
       method: 'GET',
-      disableOnMount: user?.role == 'TeamLeaders' ? false : true,
+      disableOnMount: user?.role == 'TeamLeader' ? false : true,
     },
   });
 
