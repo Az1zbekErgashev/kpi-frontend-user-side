@@ -39,17 +39,19 @@ export function TeamLeadersFilter({ month }: props) {
           allowClear={false}
         />
         {month && (
-          <Select
-            defaultValue={(dayjs().month() + 1).toString()}
-            placeholder={t('please_select_month')}
-            label={t('month')}
-          >
-            {months.map((item, index) => (
-              <SelectOption key={index} value={item.value}>
-                {t(item.label)}
-              </SelectOption>
-            ))}
-          </Select>
+        <Select
+          style={{ width: '150px' }}
+          defaultValue={(dayjs().month() + 1).toString()}
+          placeholder={t('please_select_month')}
+          label={t('month')}
+        >
+          {months.map((item, index) => (
+            <SelectOption key={index} value={item.value}>
+              {t(item.label)}
+            </SelectOption>
+          ))}
+      </Select>
+    
         )}
       </Form>
     </StyledTeamLeadersList>
