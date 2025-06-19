@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import useQueryApiClient from 'utils/useQueryApiClient';
 import { useUser } from './useUserState';
 
@@ -12,6 +12,8 @@ interface initialQuery {
 }
 export function useGoal() {
   const [queryParams, setQueryParams] = useState<initialQuery | null>({ pageIndex: 1, pageSize: 10 });
+  const [goal, setGoal] = useState<any>();
+  const navigate = useNavigate();
   const params = useParams();
   const { user } = useUser();
   const { data: ceoGoal } = useQueryApiClient({
@@ -51,6 +53,28 @@ export function useGoal() {
     },
   });
 
+  const { data: teamAndRoom } = useQueryApiClient({
+    request: {
+      url: '/api/goal/team-by-token',
+      method: 'GET',
+    },
+  });
+
+  const {} = useQueryApiClient({
+    request: {
+      url: `/api/goal/by-user/${params.id}/${params.year || queryParams?.year}`,
+      method: 'GET',
+    },
+    onSuccess: (response) => {
+      setGoal(response.data);
+    },
+    onError: (error) => {
+      if (error.error === 'user_not_found') {
+        navigate('/', { replace: true });
+      }
+    },
+  });
+
   return {
     setQueryParams,
     ceoGoal,
@@ -58,5 +82,7 @@ export function useGoal() {
     createGoalFromTeam,
     teamMeambers,
     teamLeaders,
+    teamAndRoom,
+    goal,
   };
 }

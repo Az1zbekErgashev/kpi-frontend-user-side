@@ -1,9 +1,9 @@
 export interface User {
-  Id: number;
+  id: number;
   role: string;
-  UserName: string;
-  FullName: string;
-  TeamId?: number;
+  userName: string;
+  fullName: string;
+  teamId?: number;
 }
 
 interface TargetValue {

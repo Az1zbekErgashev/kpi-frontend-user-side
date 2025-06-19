@@ -24,6 +24,8 @@ export function GoalForm({ goal, createGoal, updateGoal, type, setFormStatus }: 
   const [currentDivisionIndex, setCurrentDivisionIndex] = useState<number | null>(null);
   const [editGoalIndex, setEditGoalIndex] = useState<number | null>(null);
 
+  console.log(type);
+
   const handleOpenModal = (divisionIndex: number, goalIndex: number | null = null) => {
     setCurrentDivisionIndex(divisionIndex);
     setEditGoalIndex(goalIndex);
@@ -75,7 +77,7 @@ export function GoalForm({ goal, createGoal, updateGoal, type, setFormStatus }: 
     if (type == 'ADD') {
       createGoal(value);
     } else {
-      updateGoal({ ...value, goalId: goal?.data?.id });
+      updateGoal({ ...value, goalId: goal?.id });
     }
   };
 
@@ -84,7 +86,7 @@ export function GoalForm({ goal, createGoal, updateGoal, type, setFormStatus }: 
       form.resetFields();
       return;
     } else {
-      form.setFieldsValue({ ...goal?.data });
+      form.setFieldsValue({ ...goal });
     }
   }, [goal]);
 
@@ -299,8 +301,17 @@ export function GoalForm({ goal, createGoal, updateGoal, type, setFormStatus }: 
               )}
             </Form.List>
 
+            <Card className="comment-card">
+              <Form.Item name="comment">
+                <TextArea rows={6} placeholder={t('add_comment_area')} />
+              </Form.Item>
+            </Card>
+
+            <br />
             <div className="submit-section">
-              <Button onClick={() => setFormStatus(true)} className="cancel-btn" size="large" label={t('cancel')} />
+              {type == 'EDIT' && (
+                <Button onClick={() => setFormStatus(true)} className="cancel-btn" size="large" label={t('cancel')} />
+              )}
               <Button
                 type="primary"
                 size="large"
