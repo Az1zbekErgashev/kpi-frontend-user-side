@@ -17,6 +17,7 @@
     "i18next-http-backend": "^3.0.2",
     "js-cookie": "^3.0.5",
     "js-file-download": "^0.4.12",
+    "jwt-decode": "^4.0.0",
     "lucide-react": "^0.503.0",
     "react": "^18.2.0",
     "react-beautiful-dnd": "^13.1.1",
@@ -37,6 +38,7 @@
   "devDependencies": {
     "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
     "@types/js-cookie": "^3.0.6",
+    "@types/jwt-decode": "^2.2.1",
     "@types/node": "^16.18.58",
     "@types/react": "^18.3.20",
     "@types/react-beautiful-dnd": "^13.1.8",

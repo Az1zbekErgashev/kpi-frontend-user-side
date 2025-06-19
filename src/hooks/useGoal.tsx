@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import useQueryApiClient from 'utils/useQueryApiClient';
 import { useUser } from './useUserState';
@@ -16,6 +16,7 @@ export function useGoal() {
   const navigate = useNavigate();
   const params = useParams();
   const { user } = useUser();
+
   const { data: ceoGoal } = useQueryApiClient({
     request: {
       url: `/api/goal/ceo-goal/${params.year || queryParams?.year}`,
@@ -60,10 +61,11 @@ export function useGoal() {
     },
   });
 
-  const {} = useQueryApiClient({
+  const { refetch: getGoalByUserId } = useQueryApiClient({
     request: {
       url: `/api/goal/by-user/${params.id}/${params.year || queryParams?.year}`,
       method: 'GET',
+      disableOnMount: true,
     },
     onSuccess: (response) => {
       setGoal(response.data);
@@ -72,6 +74,20 @@ export function useGoal() {
       if (error.error === 'user_not_found') {
         navigate('/', { replace: true });
       }
+    },
+  });
+
+  const { refetch: getTeamLeaderGoal, data: teamLeaderGoal } = useQueryApiClient({
+    request: {
+      url: `/api/goal/team-leader/${params.year || queryParams?.year}`,
+      disableOnMount: true,
+    },
+  });
+
+  const { refetch: getGoalByToken, data: goalByToken } = useQueryApiClient({
+    request: {
+      url: `/api/goal/by-user-token?year=${params.year}`,
+      disableOnMount: true,
     },
   });
 
@@ -84,5 +100,10 @@ export function useGoal() {
     teamLeaders,
     teamAndRoom,
     goal,
+    teamLeaderGoal,
+    goalByToken,
+    getTeamLeaderGoal,
+    getGoalByToken,
+    getGoalByUserId,
   };
 }

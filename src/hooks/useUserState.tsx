@@ -1,10 +1,10 @@
+import Cookies from 'js-cookie';
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 import { User } from 'types/User';
 
 interface UserContextType {
   user: User | null;
   setUser: (user: User) => void;
-  roleAccess: string | undefined;
 }
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
@@ -25,14 +25,8 @@ export const UserProvider = ({ children }: UserProviderProps) => {
   const [user, setUser] = useState<User | null>(null);
 
   const updateUser = (updatedUser: User) => {
-    setUser({
-      ...updatedUser,
-    });
+    setUser({ ...updatedUser });
   };
 
-  return (
-    <UserContext.Provider value={{ user, setUser: updateUser, roleAccess: user?.role }}>
-      {children}
-    </UserContext.Provider>
-  );
+  return <UserContext.Provider value={{ user, setUser: updateUser }}>{children}</UserContext.Provider>;
 };
