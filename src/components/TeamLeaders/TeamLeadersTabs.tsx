@@ -4,10 +4,13 @@ import { TeamLeadersFilter } from './TeamLeadersFilter';
 import { TeamLeadersList } from './TeamLeadersList';
 import { ProcessList } from './ProcessKPI/ProcessList';
 import { Tabs } from 'ui';
+import { useGoal } from 'hooks/useGoal';
+import { useUser } from 'hooks/useUserState';
 
 export function TeamLeadersTabs() {
   const [activeTab, setActiveTab] = useState<string>('1');
-
+  const hookGoal = useGoal();
+  const { user } = useUser();
   const tabItems = [
     {
       key: '1',
@@ -15,8 +18,8 @@ export function TeamLeadersTabs() {
       children: (
         <div>
           <TeamLeadersFilter month={false} />
-          <TeamLeadersList users={undefined} />
-          <ProcessList users={undefined} />
+          {user?.role == 'TeamLeaders' && <TeamLeadersList users={hookGoal?.teamLeaders?.data} />}
+          <TeamLeadersList users={hookGoal?.teamMeambers?.data} />
         </div>
       ),
     },
@@ -26,8 +29,8 @@ export function TeamLeadersTabs() {
       children: (
         <div>
           <TeamLeadersFilter month={true} />
-          <ProcessList users={undefined} />
-          <TeamLeadersList users={undefined} />
+          <ProcessList users={hookGoal?.teamMeambers?.data} />
+          {user?.role == 'TeamLeaders' && <ProcessList users={undefined} />}
         </div>
       ),
     },
