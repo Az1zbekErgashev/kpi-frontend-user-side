@@ -32,7 +32,7 @@ export function GoalPage() {
   const goalId = isTeamLeader ? goalHook.goal?.id : goalHook.teamLeaderGoal?.data?.id;
   const goalStatus = isTeamLeader ? goalHook.goal?.status : goalHook.goalByToken?.data?.status;
 
-  const showUpdateButton = isCurrentUser && goalStatus !== 'PendingReview' && goalStatus !== 'Approved';
+  const showUpdateButton = isCurrentUser && goalStatus !== 'Approved';
   const showTeamLeaderTable = formStatus && goalId;
 
   useEffect(() => {
@@ -82,9 +82,7 @@ export function GoalPage() {
             goal={isTeamLeader ? goalHook.goal : goalHook.goalByToken?.data}
             roleType="TEAM_LEADER"
           />
-
           <br />
-
           {showUpdateButton && (
             <div className="submit-section">
               <Button
@@ -98,13 +96,25 @@ export function GoalPage() {
           )}
         </>
       ) : (
-        <GoalForm
-          type={goalHook.goal?.id ? 'EDIT' : 'ADD'}
-          createGoal={goalHook.createGoalFromTeam}
-          updateGoal={goalHook.updateGoal}
-          goal={goalHook.goal}
-          setFormStatus={setFormStatus}
-        />
+        <>
+          {role === 'TeamMember' ? (
+            <GoalForm
+              type={goalHook.goalByToken?.data?.id ? 'EDIT' : 'ADD'}
+              createGoal={goalHook.createGoalFromTeam}
+              updateGoal={goalHook.updateGoal}
+              goal={role === 'TeamMember' ? goalHook.goalByToken?.data : goalHook.goal}
+              setFormStatus={setFormStatus}
+            />
+          ) : (
+            <GoalForm
+              type={goalHook.goal?.id ? 'EDIT' : 'ADD'}
+              createGoal={goalHook.createGoalFromTeam}
+              updateGoal={goalHook.updateGoal}
+              goal={role === 'TeamMember' ? goalHook.goalByToken?.data : goalHook.goal}
+              setFormStatus={setFormStatus}
+            />
+          )}
+        </>
       )}
 
       <br />

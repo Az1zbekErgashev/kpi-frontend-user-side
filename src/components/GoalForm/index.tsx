@@ -24,7 +24,7 @@ export function GoalForm({ goal, createGoal, updateGoal, type, setFormStatus }: 
   const [currentDivisionIndex, setCurrentDivisionIndex] = useState<number | null>(null);
   const [editGoalIndex, setEditGoalIndex] = useState<number | null>(null);
 
-  console.log(type);
+  console.log(goal);
 
   const handleOpenModal = (divisionIndex: number, goalIndex: number | null = null) => {
     setCurrentDivisionIndex(divisionIndex);
@@ -79,6 +79,8 @@ export function GoalForm({ goal, createGoal, updateGoal, type, setFormStatus }: 
     } else {
       updateGoal({ ...value, goalId: goal?.id });
     }
+
+    setFormStatus(true);
   };
 
   useEffect(() => {
