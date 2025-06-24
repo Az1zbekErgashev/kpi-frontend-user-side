@@ -33,7 +33,7 @@ export function TeamLeadersFilter({ month }: props) {
       <Form form={form} layout="vertical">
         <DatePicker
           defaultValue={dayjs(`${currentYear}-01-01`)}
-          label={t('year')}
+          label={t('select_year')}
           picker="year"
           disabledDate={(current) => current && current.year() > currentYear}
           allowClear={false}
@@ -43,7 +43,7 @@ export function TeamLeadersFilter({ month }: props) {
           style={{ width: '150px' }}
           defaultValue={(dayjs().month() + 1).toString()}
           placeholder={t('please_select_month')}
-          label={t('month')}
+          label={t('select_month')}
         >
           {months.map((item, index) => (
             <SelectOption key={index} value={item.value}>
