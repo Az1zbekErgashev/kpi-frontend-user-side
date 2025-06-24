@@ -8,6 +8,7 @@ import { useGoal } from 'hooks/useGoal';
 import { useUser } from 'hooks/useUserState';
 import dayjs from 'dayjs';
 import useQueryApiClient from 'utils/useQueryApiClient';
+import { GoalCommentForCEO } from 'components/GoalCommentForCEO';
 
 export function GoalPage() {
   const { t } = useTranslation();
@@ -93,7 +94,6 @@ export function GoalPage() {
       <GoalTable goalAndTeam={teamAndRoom?.data} goal={ceoGoal?.data} roleType="CEO" />
 
       <br />
-      <br />
 
       {goal?.data?.id && formStatus ? (
         <>
@@ -111,7 +111,7 @@ export function GoalPage() {
             </div>
           )}
         </>
-      ) : (
+      ) : isCurrentUser ? (
         <>
           <GoalForm
             type={goal?.data?.id ? 'EDIT' : 'ADD'}
@@ -121,12 +121,9 @@ export function GoalPage() {
             setFormStatus={setFormStatus}
           />
         </>
-      )}
-
-      <br />
-      <br />
-
+      ) : null}
       {goal?.data && <CommentHistory comment={goal?.data} />}
+      {!isCurrentUser && goal?.data?.status == 'PendingReview' && <GoalCommentForCEO goal={goal?.data} status={true} />}
     </StyledGoalPage>
   );
 }
