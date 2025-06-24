@@ -19,7 +19,7 @@ export function useGoal() {
 
   const { data: ceoGoal } = useQueryApiClient({
     request: {
-      url: `/api/goal/ceo-goal/${params.year || queryParams?.year}`,
+      url: `/api/goal/ceo-goal/${params.year}`,
       method: 'GET',
       disableOnMount: user?.role == 'TeamLeader' ? false : true,
     },
@@ -36,21 +36,6 @@ export function useGoal() {
     request: {
       url: '/api/goal/update',
       method: 'PUT',
-    },
-  });
-
-  const { data: teamMeambers } = useQueryApiClient({
-    request: {
-      url: '/api/user/filter-teams',
-      method: 'GET',
-    },
-  });
-
-  const { data: teamLeaders } = useQueryApiClient({
-    request: {
-      url: '/api/user/team-leader',
-      method: 'GET',
-      disableOnMount: user?.role == 'TeamLeader' ? false : true,
     },
   });
 
@@ -77,13 +62,6 @@ export function useGoal() {
     },
   });
 
-  const { refetch: getTeamLeaderGoal, data: teamLeaderGoal } = useQueryApiClient({
-    request: {
-      url: `/api/goal/team-leader/${params.year || queryParams?.year}`,
-      disableOnMount: true,
-    },
-  });
-
   const { refetch: getGoalByToken, data: goalByToken } = useQueryApiClient({
     request: {
       url: `/api/goal/by-user-token?year=${params.year}`,
@@ -96,13 +74,9 @@ export function useGoal() {
     ceoGoal,
     updateGoal,
     createGoalFromTeam,
-    teamMeambers,
-    teamLeaders,
     teamAndRoom,
     goal,
-    teamLeaderGoal,
     goalByToken,
-    getTeamLeaderGoal,
     getGoalByToken,
     getGoalByUserId,
   };

@@ -22,36 +22,37 @@ const months = [
 
 interface props {
   month: boolean;
+  handleValueChange: (value: any) => void;
 }
-export function TeamLeadersFilter({ month }: props) {
+export function TeamLeadersFilter({ month, handleValueChange }: props) {
   const [form] = Form.useForm();
   const { t } = useTranslation();
   const currentYear = dayjs().year();
 
   return (
     <StyledTeamLeadersList>
-      <Form form={form} layout="vertical">
+      <Form form={form} layout="vertical" onValuesChange={handleValueChange}>
         <DatePicker
           defaultValue={dayjs(`${currentYear}-01-01`)}
           label={t('year')}
           picker="year"
+          name="year"
           disabledDate={(current) => current && current.year() > currentYear}
           allowClear={false}
         />
         {month && (
-        <Select
-          style={{ width: '150px' }}
-          defaultValue={(dayjs().month() + 1).toString()}
-          placeholder={t('please_select_month')}
-          label={t('month')}
-        >
-          {months.map((item, index) => (
-            <SelectOption key={index} value={item.value}>
-              {t(item.label)}
-            </SelectOption>
-          ))}
-      </Select>
-    
+          <Select
+            style={{ width: '150px' }}
+            defaultValue={(dayjs().month() + 1).toString()}
+            placeholder={t('please_select_month')}
+            label={t('month')}
+          >
+            {months.map((item, index) => (
+              <SelectOption key={index} value={item.value}>
+                {t(item.label)}
+              </SelectOption>
+            ))}
+          </Select>
         )}
       </Form>
     </StyledTeamLeadersList>

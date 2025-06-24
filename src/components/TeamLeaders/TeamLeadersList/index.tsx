@@ -1,5 +1,4 @@
 import { ColumnsType } from 'antd/es/table';
-import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { Table } from 'ui';
@@ -27,8 +26,9 @@ const statusColors: Record<Status, { background: string; color: string }> = {
 
 interface props {
   users: any;
+  role: string | undefined;
 }
-export function TeamLeadersList({ users }: props) {
+export function TeamLeadersList({ users, role }: props) {
   const { t } = useTranslation();
   const navigate = useNavigate();
 
@@ -78,7 +78,7 @@ export function TeamLeadersList({ users }: props) {
       </div>
       <Table
         onRow={(record: any) => ({
-          onClick: () => navigate(`/goal/user-id/${record.id}/${record.year}`),
+          onClick: () => navigate(`/goal/${role == 'TeamLeader' ? 'user-id' : 'user'}/${record.id}/${record.year}`),
         })}
         columns={columns}
         dataSource={users?.items ?? []}

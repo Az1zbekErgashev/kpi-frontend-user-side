@@ -7,6 +7,7 @@ import { Button, Input, TextArea } from 'ui';
 import { PlusOutlined, MinusCircleOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import { GoalFormModal } from 'components';
+import { useParams } from 'react-router-dom';
 
 interface props {
   type: 'ADD' | 'EDIT';
@@ -23,8 +24,7 @@ export function GoalForm({ goal, createGoal, updateGoal, type, setFormStatus }: 
   const [selectedTargetType, setSelectedTargetType] = useState('');
   const [currentDivisionIndex, setCurrentDivisionIndex] = useState<number | null>(null);
   const [editGoalIndex, setEditGoalIndex] = useState<number | null>(null);
-
-  console.log(goal);
+  const params = useParams();
 
   const handleOpenModal = (divisionIndex: number, goalIndex: number | null = null) => {
     setCurrentDivisionIndex(divisionIndex);
@@ -75,6 +75,7 @@ export function GoalForm({ goal, createGoal, updateGoal, type, setFormStatus }: 
 
   const onFinish = (value: any) => {
     if (type == 'ADD') {
+      value.createtAt = params.year ? new Date(params.year) : new Date();
       createGoal(value);
     } else {
       updateGoal({ ...value, goalId: goal?.id });
@@ -95,9 +96,6 @@ export function GoalForm({ goal, createGoal, updateGoal, type, setFormStatus }: 
   const handleModalSubmit = async () => {
     try {
       const values = await modalForm.validateFields();
-
-      console.log(values);
-
       const newGoal = {
         goalContent: values.goalContent,
         id: values.id,

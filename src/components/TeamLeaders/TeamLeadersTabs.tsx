@@ -1,16 +1,63 @@
 import { t } from 'i18next';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { TeamLeadersFilter } from './TeamLeadersFilter';
 import { TeamLeadersList } from './TeamLeadersList';
 import { ProcessList } from './ProcessKPI/ProcessList';
 import { Tabs } from 'ui';
-import { useGoal } from 'hooks/useGoal';
 import { useUser } from 'hooks/useUserState';
+import dayjs from 'dayjs';
+import useQueryApiClient from 'utils/useQueryApiClient';
+
+interface initialQuery {
+  name?: string;
+  IsDeleted?: string | number;
+  pageIndex: number;
+  pageSize: number;
+  year?: number;
+}
 
 export function TeamLeadersTabs() {
   const [activeTab, setActiveTab] = useState<string>('1');
-  const hookGoal = useGoal();
+  const [queryParams, setQueryParams] = useState<initialQuery | null>({ pageIndex: 1, pageSize: 10 });
   const { user } = useUser();
+
+  const handleValueChange = (value: any) => {
+    setQueryParams((prev: any) => ({
+      ...prev,
+      ...value,
+      year: dayjs(value.year).format('YYYY-MM-DDTHH:mm:ss'),
+    }));
+  };
+
+  useEffect(() => {
+    if (user?.role == 'TeamLeader') {
+      getTeamLeaders();
+    }
+  }, [user?.role, queryParams]);
+
+  const { data: teamMeambers, refetch: getTeamMeambers } = useQueryApiClient({
+    request: {
+      url: '/api/user/filter-teams',
+      method: 'GET',
+      data: queryParams,
+      disableOnMount: true,
+    },
+  });
+
+  const { data: teamLeaders, refetch: getTeamLeaders } = useQueryApiClient({
+    request: {
+      url: '/api/user/team-leader',
+      method: 'GET',
+      disableOnMount: true,
+      data: queryParams,
+    },
+  });
+
+  useEffect(() => {
+    if (queryParams) {
+      getTeamMeambers();
+    }
+  }, [queryParams]);
 
   const tabItems = [
     {
@@ -18,9 +65,9 @@ export function TeamLeadersTabs() {
       label: t('kpi_establishment'),
       children: (
         <div>
-          <TeamLeadersFilter month={false} />
-          {user?.role == 'TeamLeader' && <TeamLeadersList users={hookGoal?.teamLeaders?.data} />}
-          <TeamLeadersList users={hookGoal?.teamMeambers?.data} />
+          <TeamLeadersFilter month={false} handleValueChange={handleValueChange} />
+          {user?.role == 'TeamLeader' && <TeamLeadersList role={user?.role} users={teamLeaders?.data} />}
+          <TeamLeadersList role={user?.role} users={teamMeambers?.data} />
         </div>
       ),
     },
@@ -29,9 +76,9 @@ export function TeamLeadersTabs() {
       label: t('kpi_performance'),
       children: (
         <div>
-          <TeamLeadersFilter month={true} />
-          <ProcessList users={hookGoal?.teamMeambers?.data} />
-          {user?.role == 'TeamLeader' && <ProcessList users={hookGoal?.teamLeaders?.data} />}
+          <TeamLeadersFilter handleValueChange={handleValueChange} month={true} />
+          <ProcessList users={teamMeambers?.data} />
+          {user?.role == 'TeamLeader' && <ProcessList users={teamLeaders?.data} />}
         </div>
       ),
     },

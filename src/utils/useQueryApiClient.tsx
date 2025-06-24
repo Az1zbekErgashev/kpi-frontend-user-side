@@ -167,7 +167,7 @@ function useQueryApiClient({ request, onSuccess, onError, onFinally, enabled = t
       const response = e.response;
       console.error(e);
 
-      if (response?.status === 401) {
+      if (response?.status === 401 || response?.status === 403) {
         navigate('/', { replace: true });
         Cookies.remove('jwt');
       }

@@ -1,5 +1,5 @@
 import DefaultLayout from 'layouts/DefaultLayout';
-import { HomePage, Login, TeamLeaders, GoalPage } from 'pages';
+import { HomePage, Login, TeamLeaders, GoalPage, GoalByUser } from 'pages';
 import { createBrowserRouter, Navigate } from 'react-router-dom';
 import ProtectedUserRoute from 'routes/ProtectedUserRoutes';
 
@@ -22,13 +22,22 @@ export const router = createBrowserRouter([
       </ProtectedUserRoute>
     ),
   },
-
   {
     path: '/goal/user-id/:id/:year',
     element: (
       <ProtectedUserRoute>
         <DefaultLayout title="goal_setting">
           <GoalPage />
+        </DefaultLayout>
+      </ProtectedUserRoute>
+    ),
+  },
+  {
+    path: '/goal/user/:id/:year',
+    element: (
+      <ProtectedUserRoute>
+        <DefaultLayout title="goal_setting">
+          <GoalByUser />
         </DefaultLayout>
       </ProtectedUserRoute>
     ),
