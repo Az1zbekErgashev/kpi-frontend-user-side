@@ -34,7 +34,7 @@ export function TeamLeadersFilter({ month, handleValueChange }: props) {
       <Form form={form} layout="vertical" onValuesChange={handleValueChange}>
         <DatePicker
           defaultValue={dayjs(`${currentYear}-01-01`)}
-          label={t('year')}
+          label={t('select_year')}
           picker="year"
           name="year"
           disabledDate={(current) => current && current.year() > currentYear}
