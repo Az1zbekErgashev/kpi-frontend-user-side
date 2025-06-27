@@ -53,11 +53,11 @@ export function GoalTable({ goal, roleType, goalAndTeam }: props) {
                     if (type === 'RatioType') {
                       displayValue = valueText
                         ? `${valueText} : ${valueRatio ?? 0}% ${t(status)}`
-                        : `${valueRatio ?? 0}% ${t(status)}`;
+                        : `: ${valueRatio ?? 0}% ${t(status)}`;
                     } else if (type === 'NumberOfTimesType') {
                       displayValue = valueText
                         ? `${valueText} : ${valueNumber ?? 0} ${t(status)}`
-                        : `${valueNumber ?? 0} ${t(status)}`;
+                        : `: ${valueNumber ?? 0}% ${t(status)}`;
                     } else if (type === 'IndividualEvaluation' || type === 'LeaderEvaluation') {
                       const label =
                         type === 'IndividualEvaluation' ? t('[individual_evaluation]') : t('[leader_evaluation]');
@@ -76,6 +76,7 @@ export function GoalTable({ goal, roleType, goalAndTeam }: props) {
                             <td className="category-cell" rowSpan={division.goals.length}>
                               {division.name}
                             </td>
+
                             <td className="ratio-cell" rowSpan={division.goals.length}>
                               {division.ratio}
                             </td>

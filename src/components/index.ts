@@ -10,3 +10,5 @@ export { CommentHistory } from './CommentHistory';
 export { GoalFormModal } from './GoalFormModal';
 export { YearlyGoalFilter } from './YearlyGoal/YearlyGoalFilter';
 export { TeamLeadersTabs } from './TeamLeaders/TeamLeadersTabs';
+export { MonthlyValue } from './MonthlyValue';
+export { GoalTableForPerformance } from './GoalTableForPerformance';

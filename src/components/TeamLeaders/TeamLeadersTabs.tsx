@@ -16,9 +16,23 @@ interface initialQuery {
   year?: number;
 }
 
+interface initialQueryForPerformance {
+  pageIndex: number;
+  pageSize: number;
+  year?: number;
+  month?: number;
+  userId?: number;
+}
+
 export function TeamLeadersTabs() {
   const [activeTab, setActiveTab] = useState<string>('1');
   const [queryParams, setQueryParams] = useState<initialQuery | null>({ pageIndex: 1, pageSize: 10 });
+  const [queryParamsForPerformance, setQueryParamsForPerformance] = useState<initialQueryForPerformance | null>({
+    pageIndex: 1,
+    pageSize: 10,
+    month: new Date().getMonth() + 1,
+    year: new Date().getFullYear(),
+  });
   const { user } = useUser();
 
   const handleValueChange = (value: any) => {
@@ -59,6 +73,26 @@ export function TeamLeadersTabs() {
     }
   }, [queryParams]);
 
+  const { refetch: getAllMonthlyData, data: monthlyData } = useQueryApiClient({
+    request: {
+      url: '/api/monthlytarget/list',
+      method: 'GET',
+      disableOnMount: true,
+      data: queryParamsForPerformance,
+    },
+  });
+
+  const { data: monthlyDataTeamLeader } = useQueryApiClient({
+    request: {
+      url: '/api/monthlytarget/team-leader',
+      data: queryParamsForPerformance,
+    },
+  });
+
+  useEffect(() => {
+    getAllMonthlyData();
+  }, [queryParamsForPerformance]);
+
   const tabItems = [
     {
       key: '1',
@@ -77,8 +111,8 @@ export function TeamLeadersTabs() {
       children: (
         <div>
           <TeamLeadersFilter handleValueChange={handleValueChange} month={true} />
-          <ProcessList users={teamMeambers?.data} />
-          {user?.role == 'TeamLeader' && <ProcessList users={teamLeaders?.data} />}
+          <ProcessList users={monthlyData?.data} />
+          {user?.role == 'TeamLeader' && <ProcessList users={monthlyDataTeamLeader?.data} />}
         </div>
       ),
     },

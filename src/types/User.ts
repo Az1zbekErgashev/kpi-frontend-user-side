@@ -17,6 +17,7 @@ interface TargetValue {
   createdAt: string;
   updatedAt: string;
   isDeleted: number;
+  valueRatioStatus: string;
 }
 
 interface Goal {

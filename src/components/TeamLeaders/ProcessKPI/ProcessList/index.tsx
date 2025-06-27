@@ -79,7 +79,7 @@ export function ProcessList({ users }: props) {
       </div>
       <Table
         onRow={(record: any) => ({
-          onClick: () => navigate(`/goal/user/${record.year}`),
+          onClick: () => navigate(`/goal/user-performance/${record.id}/${record.month}/${record.year}`),
         })}
         columns={columns}
         dataSource={users?.items ?? []}

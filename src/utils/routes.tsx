@@ -1,5 +1,6 @@
+import { MonthlyValue } from 'components/MonthlyValue';
 import DefaultLayout from 'layouts/DefaultLayout';
-import { HomePage, Login, TeamLeaders, GoalPage, GoalByUser } from 'pages';
+import { Login, TeamLeaders, GoalPage, GoalByUser } from 'pages';
 import { createBrowserRouter, Navigate } from 'react-router-dom';
 import ProtectedUserRoute from 'routes/ProtectedUserRoutes';
 
@@ -38,6 +39,16 @@ export const router = createBrowserRouter([
       <ProtectedUserRoute>
         <DefaultLayout title="goal_setting">
           <GoalByUser />
+        </DefaultLayout>
+      </ProtectedUserRoute>
+    ),
+  },
+  {
+    path: '/goal/user-performance/:id/:month/:year',
+    element: (
+      <ProtectedUserRoute>
+        <DefaultLayout title="goal_setting">
+          <MonthlyValue />
         </DefaultLayout>
       </ProtectedUserRoute>
     ),
