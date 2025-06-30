@@ -12,3 +12,4 @@ export { YearlyGoalFilter } from './YearlyGoal/YearlyGoalFilter';
 export { TeamLeadersTabs } from './TeamLeaders/TeamLeadersTabs';
 export { MonthlyValue } from './MonthlyValue';
 export { GoalTableForPerformance } from './GoalTableForPerformance';
+export { PerformanceCommentHistory } from './PerformanceCommentHistory';

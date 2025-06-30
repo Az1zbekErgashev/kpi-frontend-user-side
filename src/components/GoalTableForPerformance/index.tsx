@@ -1,18 +1,18 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { StyledGoalTable } from '../GoalTable/style';
 import { useTranslation } from 'react-i18next';
 import { ApiData } from 'types/User';
 import { useLocation, useParams } from 'react-router-dom';
 import { Button, TextArea } from 'ui';
 import { Card, Form } from 'antd';
-import useQueryApiClient from 'utils/useQueryApiClient';
+import { PerformanceCommentHistory } from 'components';
 
 interface Target {
   valueRatio?: number;
   valueRatioStatus?: number;
   valueNumber?: number;
   valueText?: string;
-  id?: number;
+  id?: number; // Monthly target value ID
   targetValueId?: number;
 }
 
@@ -22,9 +22,19 @@ interface props {
   goalAndTeam: { team: string; room: string };
   isEditing?: boolean;
   onSubmit?: (value: any) => void;
+  monthlyTargetComment: any;
+  monthlyTargetValue: any;
 }
 
-export function GoalTableForPerformance({ goal, roleType, goalAndTeam, isEditing = true, onSubmit }: props) {
+export function GoalTableForPerformance({
+  goal,
+  roleType,
+  goalAndTeam,
+  isEditing = true,
+  onSubmit,
+  monthlyTargetComment,
+  monthlyTargetValue,
+}: props) {
   const { t } = useTranslation();
   const params = useParams();
   const year = params.year;
@@ -32,6 +42,20 @@ export function GoalTableForPerformance({ goal, roleType, goalAndTeam, isEditing
   const location = useLocation();
   const [targets, setTargets] = useState<Target[]>([]);
   const [form] = Form.useForm();
+
+  useEffect(() => {
+    if (monthlyTargetValue && Array.isArray(monthlyTargetValue)) {
+      const mappedTargets = monthlyTargetValue.map((t: any) => ({
+        valueRatio: t.valueRatio,
+        valueRatioStatus: t.valueRatioStatus,
+        valueNumber: t.valueNumber,
+        valueText: t.valueText,
+        id: t.id,
+        targetValueId: t.targetValueId,
+      }));
+      setTargets(mappedTargets);
+    }
+  }, [monthlyTargetValue]);
 
   const handleInputChange = (
     divisionIndex: number,
@@ -98,6 +122,8 @@ export function GoalTableForPerformance({ goal, roleType, goalAndTeam, isEditing
                     const { type, valueRatio, valueRatioStatus, valueNumber, valueText, evaluationText, status, id } =
                       item.targetValue || {};
 
+                    const currentTarget = targets.find((t) => t.targetValueId === id);
+
                     return (
                       <tr
                         key={`${division.id}-${goalIndex}`}
@@ -123,11 +149,11 @@ export function GoalTableForPerformance({ goal, roleType, goalAndTeam, isEditing
                                     <div className="flex items-center">
                                       {valueText && <span className="mr-2">{valueText} :</span>}
                                       <textarea
-                                        value={targets.find((t) => t.targetValueId === id)?.valueText || ''}
+                                        value={currentTarget?.valueText || ''}
                                         onChange={(e) =>
                                           handleInputChange(divisionIndex, goalIndex, 'valueText', e.target.value, id)
                                         }
-                                        rows={10}
+                                        rows={4}
                                         style={{
                                           width: '100%',
                                           border: '1px solid black',
@@ -137,17 +163,13 @@ export function GoalTableForPerformance({ goal, roleType, goalAndTeam, isEditing
                                         className="w-full p-2 border rounded"
                                         placeholder={t('enter_text')}
                                       />
+                                      <input type="hidden" value={currentTarget?.id || ''} name={`hidden_id_${id}`} />
                                     </div>
                                   ) : type === 'RatioType' ? (
                                     <div className="flex items-center">
-                                      {valueText ? (
-                                        <span className="mr-2">{valueText} :</span>
-                                      ) : (
-                                        <span className="mr-2"> :</span>
-                                      )}
                                       <input
                                         type="number"
-                                        value={targets.find((t) => t.targetValueId === id)?.valueRatio || ''}
+                                        value={currentTarget?.valueRatio || ''}
                                         onChange={(e) =>
                                           handleInputChange(
                                             divisionIndex,
@@ -163,7 +185,7 @@ export function GoalTableForPerformance({ goal, roleType, goalAndTeam, isEditing
                                       <span>/</span>
                                       <input
                                         type="number"
-                                        value={targets.find((t) => t.targetValueId === id)?.valueRatioStatus || ''}
+                                        value={currentTarget?.valueRatioStatus || ''}
                                         onChange={(e) =>
                                           handleInputChange(
                                             divisionIndex,
@@ -177,17 +199,13 @@ export function GoalTableForPerformance({ goal, roleType, goalAndTeam, isEditing
                                         placeholder={t('enter_status')}
                                       />
                                       <span className="ml-2">%</span>
+                                      <input type="hidden" value={currentTarget?.id || ''} name={`hidden_id_${id}`} />
                                     </div>
                                   ) : (
                                     <div className="flex items-center">
-                                      {valueText ? (
-                                        <span className="mr-2">{valueText} :</span>
-                                      ) : (
-                                        <span className="mr-2"> :</span>
-                                      )}
                                       <input
                                         type="number"
-                                        value={targets.find((t) => t.targetValueId === id)?.valueNumber || ''}
+                                        value={currentTarget?.valueNumber || ''}
                                         onChange={(e) =>
                                           handleInputChange(
                                             divisionIndex,
@@ -201,13 +219,16 @@ export function GoalTableForPerformance({ goal, roleType, goalAndTeam, isEditing
                                         placeholder={t('enter_value')}
                                       />
                                       <span className="ml-2">{status ? t(status) : ''}</span>
+                                      <input type="hidden" value={currentTarget?.id || ''} name={`hidden_id_${id}`} />
                                     </div>
                                   )}
                                 </>
                               ) : (
                                 <div className="target-text">
                                   {type === 'RatioType' &&
-                                    (valueText || ': ') + (valueRatio ?? 0) + '%' + (status ? ` ${t(status)}` : '')}
+                                    `${valueText || ''}: ${valueRatio ?? 0}/${valueRatioStatus ?? 0} ${
+                                      status ? t(status) : ''
+                                    }`}
                                   {type === 'NumberOfTimesType' && valueText
                                     ? `${valueText} : ${valueNumber ?? 0} ${t(status)}`
                                     : type === 'IndividualEvaluation' || type === 'LeaderEvaluation'
@@ -230,6 +251,7 @@ export function GoalTableForPerformance({ goal, roleType, goalAndTeam, isEditing
           </table>
         </div>
         <br />
+        {monthlyTargetComment && <PerformanceCommentHistory comment={{ comments: monthlyTargetComment }} />}
         <Form form={form} layout="vertical">
           <Card className="comment-card">
             <TextArea name="comment" rows={4} placeholder={t('add_comment_area')} />

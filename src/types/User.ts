@@ -58,6 +58,7 @@ interface CreatedBy {
   role: string;
   isDeleted: number;
   room: string;
+  team: string;
 }
 
 export interface ApiData {

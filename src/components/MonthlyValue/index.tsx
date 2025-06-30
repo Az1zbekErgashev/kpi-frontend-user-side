@@ -4,15 +4,12 @@ import useQueryApiClient from 'utils/useQueryApiClient';
 import { useParams } from 'react-router-dom';
 import { GoalTable } from 'components/GoalTable';
 import { GoalTableForPerformance } from 'components';
-import { Button, TextArea } from 'ui';
 import { useTranslation } from 'react-i18next';
-import { GoalCommentForCEO } from 'components/GoalCommentForCEO';
-import { Card, Form } from 'antd';
+import { Form } from 'antd';
 
 export function MonthlyValue() {
   const params = useParams();
   const { t } = useTranslation();
-  const [form] = Form.useForm();
   const { data: monthlyData } = useQueryApiClient({
     request: {
       url: '/api/monthlytarget',
@@ -34,8 +31,19 @@ export function MonthlyValue() {
     },
   });
 
+  const { appendData: updateMonthData } = useQueryApiClient({
+    request: {
+      url: '/api/monthlytarget',
+      method: 'PUT',
+    },
+  });
+
   const onSubmit = (data: any) => {
-    createMonthData(data);
+    if (monthlyData?.data?.monthlyTargetValue && monthlyData?.data?.monthlyTargetValue.length > 0) {
+      updateMonthData(data);
+    } else {
+      createMonthData(data);
+    }
   };
 
   return (
@@ -47,6 +55,8 @@ export function MonthlyValue() {
         goal={monthlyData?.data?.goal}
         roleType="TEAM_LEADER"
         goalAndTeam={teamAndRoom?.data}
+        monthlyTargetValue={monthlyData?.data?.monthlyTargetValue}
+        monthlyTargetComment={monthlyData?.data?.monthlyTargetComment}
       />
     </StyledMonthlyValue>
   );
