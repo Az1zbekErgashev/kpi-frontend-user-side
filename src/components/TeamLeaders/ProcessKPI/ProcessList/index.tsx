@@ -27,12 +27,12 @@ const statusColors: Record<Status, { background: string; color: string }> = {
 
 interface props {
   users: any;
+  teamLeader: boolean;
 }
 
-export function ProcessList({ users }: props) {
+export function ProcessList({ users, teamLeader }: props) {
   const { t } = useTranslation();
   const navigate = useNavigate();
-
   const columns: ColumnsType = [
     {
       title: t('room'),
@@ -79,7 +79,8 @@ export function ProcessList({ users }: props) {
       </div>
       <Table
         onRow={(record: any) => ({
-          onClick: () => navigate(`/goal/user-performance/${record.id}/${record.month}/${record.year}`),
+          onClick: () =>
+            navigate(`/goal/${teamLeader ? 'team' : 'user'}-performance/${record.id}/${record.month}/${record.year}`),
         })}
         columns={columns}
         dataSource={users?.items ?? []}

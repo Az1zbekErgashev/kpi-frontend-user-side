@@ -42,4 +42,11 @@ export const StyledMonthlyValue = styled.div`
       0 6px 16px rgba(24, 144, 255, 0.4),
       0 0 0 2px rgba(24, 144, 255, 0.2) !important;
   }
+  .flex-button {
+    margin-top: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: end;
+    gap: 10px;
+  }
 `;

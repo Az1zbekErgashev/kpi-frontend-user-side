@@ -47,6 +47,9 @@ export function Navbar({ title }: props) {
     onSuccess(response) {
       setUser(response?.data);
     },
+    onError(error) {
+      if (error.statusCode == 404) logout();
+    },
   });
 
   const handleLogout = () => {

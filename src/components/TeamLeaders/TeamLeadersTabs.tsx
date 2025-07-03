@@ -43,6 +43,14 @@ export function TeamLeadersTabs() {
     }));
   };
 
+  const handleValueChangePerformance = (value: any) => {
+    setQueryParamsForPerformance((prev: any) => ({
+      ...prev,
+      ...value,
+      year: dayjs(value.year).format('YYYY'),
+    }));
+  };
+
   useEffect(() => {
     if (user?.role == 'TeamLeader') {
       getTeamLeaders();
@@ -110,9 +118,9 @@ export function TeamLeadersTabs() {
       label: t('kpi_performance'),
       children: (
         <div>
-          <TeamLeadersFilter handleValueChange={handleValueChange} month={true} />
-          <ProcessList users={monthlyData?.data} />
-          {user?.role == 'TeamLeader' && <ProcessList users={monthlyDataTeamLeader?.data} />}
+          <TeamLeadersFilter handleValueChange={handleValueChangePerformance} month={true} />
+          <ProcessList teamLeader={false} users={monthlyData?.data} />
+          {user?.role == 'TeamLeader' && <ProcessList teamLeader={true} users={monthlyDataTeamLeader?.data} />}
         </div>
       ),
     },

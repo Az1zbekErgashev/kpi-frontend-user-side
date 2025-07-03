@@ -2,17 +2,18 @@ import React, { useState, useEffect } from 'react';
 import { StyledGoalTable } from '../GoalTable/style';
 import { useTranslation } from 'react-i18next';
 import { ApiData } from 'types/User';
-import { useLocation, useParams } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { Button, TextArea } from 'ui';
 import { Card, Form } from 'antd';
 import { PerformanceCommentHistory } from 'components';
+import useQueryApiClient from 'utils/useQueryApiClient';
 
 interface Target {
   valueRatio?: number;
   valueRatioStatus?: number;
   valueNumber?: number;
   valueText?: string;
-  id?: number; // Monthly target value ID
+  id?: number;
   targetValueId?: number;
 }
 
@@ -22,8 +23,7 @@ interface props {
   goalAndTeam: { team: string; room: string };
   isEditing?: boolean;
   onSubmit?: (value: any) => void;
-  monthlyTargetComment: any;
-  monthlyTargetValue: any;
+  monthlyValue: any;
 }
 
 export function GoalTableForPerformance({
@@ -32,8 +32,7 @@ export function GoalTableForPerformance({
   goalAndTeam,
   isEditing = true,
   onSubmit,
-  monthlyTargetComment,
-  monthlyTargetValue,
+  monthlyValue,
 }: props) {
   const { t } = useTranslation();
   const params = useParams();
@@ -42,10 +41,11 @@ export function GoalTableForPerformance({
   const location = useLocation();
   const [targets, setTargets] = useState<Target[]>([]);
   const [form] = Form.useForm();
+  const navigate = useNavigate();
 
   useEffect(() => {
-    if (monthlyTargetValue && Array.isArray(monthlyTargetValue)) {
-      const mappedTargets = monthlyTargetValue.map((t: any) => ({
+    if (monthlyValue?.monthlyTargetValue && Array.isArray(monthlyValue?.monthlyTargetValue)) {
+      const mappedTargets = monthlyValue?.monthlyTargetValue?.map((t: any) => ({
         valueRatio: t.valueRatio,
         valueRatioStatus: t.valueRatioStatus,
         valueNumber: t.valueNumber,
@@ -55,7 +55,7 @@ export function GoalTableForPerformance({
       }));
       setTargets(mappedTargets);
     }
-  }, [monthlyTargetValue]);
+  }, [monthlyValue?.monthlyTargetValue]);
 
   const handleInputChange = (
     divisionIndex: number,
@@ -87,6 +87,27 @@ export function GoalTableForPerformance({
       };
       onSubmit(data);
     }
+  };
+
+  const { appendData: changeStatusMonthData } = useQueryApiClient({
+    request: {
+      url: '/api/monthlytarget/change-status',
+      method: 'PUT',
+    },
+    onSuccess() {
+      form.resetFields();
+      setTargets([]);
+      navigate(-1);
+    },
+  });
+
+  const handleChangeStatus = (status: boolean) => {
+    const data = {
+      comment: form.getFieldValue('comment'),
+      goalId: monthlyValue?.id,
+      status,
+    };
+    changeStatusMonthData(data);
   };
 
   return (
@@ -148,76 +169,124 @@ export function GoalTableForPerformance({
                                   {type === 'TextType' ? (
                                     <div className="flex items-center">
                                       {valueText && <span className="mr-2">{valueText} :</span>}
-                                      <textarea
-                                        value={currentTarget?.valueText || ''}
-                                        onChange={(e) =>
-                                          handleInputChange(divisionIndex, goalIndex, 'valueText', e.target.value, id)
-                                        }
-                                        rows={4}
-                                        style={{
-                                          width: '100%',
-                                          border: '1px solid black',
-                                          padding: '8px',
-                                          borderRadius: '4px',
-                                        }}
-                                        className="w-full p-2 border rounded"
-                                        placeholder={t('enter_text')}
-                                      />
+                                      {monthlyValue?.isTeamLeader ? (
+                                        <div>{currentTarget?.valueText}</div>
+                                      ) : (monthlyValue?.status === 'Returned' && monthlyValue?.isSended) ||
+                                        (location.pathname.includes('team-performance') &&
+                                          monthlyValue?.status === 'Returned' &&
+                                          !monthlyValue?.isSended) ||
+                                        (monthlyValue?.status === 'PendingReview' && !monthlyValue?.isSended) ? (
+                                        <textarea
+                                          value={currentTarget?.valueText || ''}
+                                          onChange={(e) =>
+                                            handleInputChange(divisionIndex, goalIndex, 'valueText', e.target.value, id)
+                                          }
+                                          rows={4}
+                                          style={{
+                                            width: '100%',
+                                            border: '1px solid black',
+                                            padding: '8px',
+                                            borderRadius: '4px',
+                                          }}
+                                          className="w-full p-2 border rounded"
+                                        />
+                                      ) : (
+                                        <div>{currentTarget?.valueText}</div>
+                                      )}
                                       <input type="hidden" value={currentTarget?.id || ''} name={`hidden_id_${id}`} />
                                     </div>
                                   ) : type === 'RatioType' ? (
-                                    <div className="flex items-center">
-                                      <input
-                                        type="number"
-                                        value={currentTarget?.valueRatio || ''}
-                                        onChange={(e) =>
-                                          handleInputChange(
-                                            divisionIndex,
-                                            goalIndex,
-                                            'valueRatio',
-                                            parseFloat(e.target.value) || 0,
-                                            id
-                                          )
-                                        }
-                                        className="w-20 p-2 border rounded mr-1"
-                                        placeholder={t('enter_value')}
-                                      />
+                                    <div
+                                      className="flex items-center"
+                                      style={{ display: 'flex', alignItems: 'center', gap: '5px' }}
+                                    >
+                                      {monthlyValue?.isTeamLeader ? (
+                                        <div>{currentTarget?.valueRatio}</div>
+                                      ) : monthlyValue?.isSended ||
+                                        monthlyValue?.status === 'Returned' ||
+                                        (location.pathname.includes('team-performance') &&
+                                          monthlyValue?.status === 'Returned' &&
+                                          !monthlyValue?.isSended) ||
+                                        (monthlyValue?.status === 'PendingReview' && !monthlyValue?.isSended) ? (
+                                        <input
+                                          type="number"
+                                          style={{ width: '50px' }}
+                                          value={currentTarget?.valueRatio || ''}
+                                          onChange={(e) =>
+                                            handleInputChange(
+                                              divisionIndex,
+                                              goalIndex,
+                                              'valueRatio',
+                                              parseFloat(e.target.value) || 0,
+                                              id
+                                            )
+                                          }
+                                          className="w-20 p-2 border rounded mr-1"
+                                        />
+                                      ) : (
+                                        <div>{currentTarget?.valueRatio}</div>
+                                      )}
                                       <span>/</span>
-                                      <input
-                                        type="number"
-                                        value={currentTarget?.valueRatioStatus || ''}
-                                        onChange={(e) =>
-                                          handleInputChange(
-                                            divisionIndex,
-                                            goalIndex,
-                                            'valueRatioStatus',
-                                            parseFloat(e.target.value) || 0,
-                                            id
-                                          )
-                                        }
-                                        className="w-20 p-2 border rounded ml-1"
-                                        placeholder={t('enter_status')}
-                                      />
-                                      <span className="ml-2">%</span>
+                                      {monthlyValue?.isTeamLeader ? (
+                                        <div>{currentTarget?.valueRatio}</div>
+                                      ) : monthlyValue?.isSended ||
+                                        monthlyValue?.status === 'Returned' ||
+                                        (location.pathname.includes('team-performance') &&
+                                          monthlyValue?.status === 'Returned' &&
+                                          !monthlyValue?.isSended) ||
+                                        (monthlyValue?.status === 'PendingReview' && !monthlyValue?.isSended) ? (
+                                        <input
+                                          type="number"
+                                          style={{ width: '50px' }}
+                                          value={currentTarget?.valueRatioStatus || ''}
+                                          onChange={(e) =>
+                                            handleInputChange(
+                                              divisionIndex,
+                                              goalIndex,
+                                              'valueRatioStatus',
+                                              parseFloat(e.target.value) || 0,
+                                              id
+                                            )
+                                          }
+                                          className="w-20 p-2 border rounded ml-1"
+                                        />
+                                      ) : (
+                                        <div>{currentTarget?.valueRatioStatus}</div>
+                                      )}
+
                                       <input type="hidden" value={currentTarget?.id || ''} name={`hidden_id_${id}`} />
                                     </div>
                                   ) : (
-                                    <div className="flex items-center">
-                                      <input
-                                        type="number"
-                                        value={currentTarget?.valueNumber || ''}
-                                        onChange={(e) =>
-                                          handleInputChange(
-                                            divisionIndex,
-                                            goalIndex,
-                                            'valueNumber',
-                                            parseFloat(e.target.value) || 0,
-                                            id
-                                          )
-                                        }
-                                        className="w-20 p-2 border rounded mr-1"
-                                        placeholder={t('enter_value')}
-                                      />
+                                    <div
+                                      className="flex items-center"
+                                      style={{ display: 'flex', alignItems: 'center', gap: '5px' }}
+                                    >
+                                      {monthlyValue?.isTeamLeader ? (
+                                        <div>{currentTarget?.valueRatio}</div>
+                                      ) : monthlyValue?.isSended ||
+                                        monthlyValue?.status === 'Returned' ||
+                                        (location.pathname.includes('team-performance') &&
+                                          monthlyValue?.status === 'Returned' &&
+                                          !monthlyValue?.isSended) ||
+                                        (monthlyValue?.status === 'PendingReview' && !monthlyValue?.isSended) ? (
+                                        <input
+                                          style={{ width: '50px' }}
+                                          type="number"
+                                          value={currentTarget?.valueNumber || ''}
+                                          onChange={(e) =>
+                                            handleInputChange(
+                                              divisionIndex,
+                                              goalIndex,
+                                              'valueNumber',
+                                              parseFloat(e.target.value) || 0,
+                                              id
+                                            )
+                                          }
+                                          className="w-20 p-2 border rounded mr-1"
+                                        />
+                                      ) : (
+                                        <div>{currentTarget?.valueNumber}</div>
+                                      )}
                                       <span className="ml-2">{status ? t(status) : ''}</span>
                                       <input type="hidden" value={currentTarget?.id || ''} name={`hidden_id_${id}`} />
                                     </div>
@@ -251,23 +320,59 @@ export function GoalTableForPerformance({
           </table>
         </div>
         <br />
-        {monthlyTargetComment && <PerformanceCommentHistory comment={{ comments: monthlyTargetComment }} />}
-        <Form form={form} layout="vertical">
-          <Card className="comment-card">
-            <TextArea name="comment" rows={4} placeholder={t('add_comment_area')} />
-          </Card>
-        </Form>
+        {monthlyValue?.monthlyTargetComment && (
+          <PerformanceCommentHistory comment={{ comments: monthlyValue?.monthlyTargetComment }} />
+        )}
+        {monthlyValue?.goal && (
+          <>
+            {((monthlyValue?.isTeamLeader && monthlyValue?.status === 'PendingReview') ||
+              !['Approved', 'PendingReview'].includes(monthlyValue?.status) ||
+              !monthlyValue.isSended) && (
+              <Form form={form} layout="vertical">
+                <Card className="comment-card">
+                  <TextArea name="comment" rows={4} placeholder={t('add_comment_area')} />
+                </Card>
+              </Form>
+            )}
+          </>
+        )}
+
         <br />
-        <div className="submit-section">
-          <Button
-            type="primary"
-            size="large"
-            className="submit-btn"
-            label={goal?.id ? t('update_yearly_gaol') : t('create_yearly_gaol')}
-            htmlType="submit"
-            onClick={handleSubmit}
-          />
-        </div>
+        {monthlyValue?.goal && (
+          <>
+            {monthlyValue?.isTeamLeader ? (
+              <>
+                {monthlyValue.status == 'PendingReview' && (
+                  <div className="flex-button">
+                    <Button onClick={() => handleChangeStatus(true)} label={t('approve')} type="primary" />
+                    <Button
+                      onClick={() => handleChangeStatus(false)}
+                      label={t('reject_for_correct')}
+                      type="primary"
+                      danger
+                    />
+                  </div>
+                )}
+              </>
+            ) : (
+              <>
+                {((monthlyValue.status !== 'PendingReview' && monthlyValue?.status !== 'Approved') ||
+                  !monthlyValue?.isSended) && (
+                  <div className="submit-section">
+                    <Button
+                      type="primary"
+                      size="large"
+                      className="submit-btn"
+                      label={goal?.id ? t('update_yearly_gaol') : t('create_yearly_gaol')}
+                      htmlType="submit"
+                      onClick={handleSubmit}
+                    />
+                  </div>
+                )}
+              </>
+            )}
+          </>
+        )}
       </div>
     </StyledGoalTable>
   );
