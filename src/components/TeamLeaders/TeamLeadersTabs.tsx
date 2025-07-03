@@ -7,7 +7,7 @@ import { Tabs } from 'ui';
 import { useUser } from 'hooks/useUserState';
 import dayjs from 'dayjs';
 import useQueryApiClient from 'utils/useQueryApiClient';
-
+import { useSearchParams } from 'react-router-dom';
 interface initialQuery {
   name?: string;
   IsDeleted?: string | number;
@@ -25,7 +25,9 @@ interface initialQueryForPerformance {
 }
 
 export function TeamLeadersTabs() {
-  const [activeTab, setActiveTab] = useState<string>('1');
+  const [searchParams, setSearchParams] = useSearchParams();
+  const initialTab = searchParams.get('tab') || '1';
+  const [activeTab, setActiveTab] = useState<string>(initialTab);
   const [queryParams, setQueryParams] = useState<initialQuery | null>({ pageIndex: 1, pageSize: 10 });
   const [queryParamsForPerformance, setQueryParamsForPerformance] = useState<initialQueryForPerformance | null>({
     pageIndex: 1,
@@ -101,6 +103,12 @@ export function TeamLeadersTabs() {
     getAllMonthlyData();
   }, [queryParamsForPerformance]);
 
+  const handleTabChange = (key: string) => {
+    setActiveTab(key);
+    searchParams.set('tab', key);
+    setSearchParams(searchParams);
+  };
+
   const tabItems = [
     {
       key: '1',
@@ -126,5 +134,5 @@ export function TeamLeadersTabs() {
     },
   ];
 
-  return <Tabs animated={true} type="line" activeKey={activeTab} onChange={setActiveTab} items={tabItems} />;
+  return <Tabs animated={true} type="line" activeKey={activeTab} onChange={handleTabChange} items={tabItems} />;
 }

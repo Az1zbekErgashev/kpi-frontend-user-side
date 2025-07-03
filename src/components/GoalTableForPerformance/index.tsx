@@ -7,6 +7,7 @@ import { Button, TextArea } from 'ui';
 import { Card, Form } from 'antd';
 import { PerformanceCommentHistory } from 'components';
 import useQueryApiClient from 'utils/useQueryApiClient';
+import { useUser } from 'hooks/useUserState';
 
 interface Target {
   valueRatio?: number;
@@ -42,6 +43,7 @@ export function GoalTableForPerformance({
   const [targets, setTargets] = useState<Target[]>([]);
   const [form] = Form.useForm();
   const navigate = useNavigate();
+  const { user } = useUser();
 
   useEffect(() => {
     if (monthlyValue?.monthlyTargetValue && Array.isArray(monthlyValue?.monthlyTargetValue)) {
@@ -200,10 +202,10 @@ export function GoalTableForPerformance({
                                       className="flex items-center"
                                       style={{ display: 'flex', alignItems: 'center', gap: '5px' }}
                                     >
+                                      <div>{valueText}</div>
                                       {monthlyValue?.isTeamLeader ? (
                                         <div>{currentTarget?.valueRatio}</div>
-                                      ) : monthlyValue?.isSended ||
-                                        monthlyValue?.status === 'Returned' ||
+                                      ) : (monthlyValue?.status === 'Returned' && monthlyValue?.isSended) ||
                                         (location.pathname.includes('team-performance') &&
                                           monthlyValue?.status === 'Returned' &&
                                           !monthlyValue?.isSended) ||
@@ -228,9 +230,8 @@ export function GoalTableForPerformance({
                                       )}
                                       <span>/</span>
                                       {monthlyValue?.isTeamLeader ? (
-                                        <div>{currentTarget?.valueRatio}</div>
-                                      ) : monthlyValue?.isSended ||
-                                        monthlyValue?.status === 'Returned' ||
+                                        <div>{currentTarget?.valueRatioStatus}</div>
+                                      ) : (monthlyValue?.status === 'Returned' && monthlyValue?.isSended) ||
                                         (location.pathname.includes('team-performance') &&
                                           monthlyValue?.status === 'Returned' &&
                                           !monthlyValue?.isSended) ||
@@ -261,10 +262,10 @@ export function GoalTableForPerformance({
                                       className="flex items-center"
                                       style={{ display: 'flex', alignItems: 'center', gap: '5px' }}
                                     >
+                                      <div>{valueText}</div>
                                       {monthlyValue?.isTeamLeader ? (
-                                        <div>{currentTarget?.valueRatio}</div>
-                                      ) : monthlyValue?.isSended ||
-                                        monthlyValue?.status === 'Returned' ||
+                                        <div>{currentTarget?.valueNumber}</div>
+                                      ) : (monthlyValue?.status === 'Returned' && monthlyValue?.isSended) ||
                                         (location.pathname.includes('team-performance') &&
                                           monthlyValue?.status === 'Returned' &&
                                           !monthlyValue?.isSended) ||
@@ -323,26 +324,23 @@ export function GoalTableForPerformance({
         {monthlyValue?.monthlyTargetComment && (
           <PerformanceCommentHistory comment={{ comments: monthlyValue?.monthlyTargetComment }} />
         )}
-        {monthlyValue?.goal && (
-          <>
-            {((monthlyValue?.isTeamLeader && monthlyValue?.status === 'PendingReview') ||
-              !['Approved', 'PendingReview'].includes(monthlyValue?.status) ||
-              !monthlyValue.isSended) && (
-              <Form form={form} layout="vertical">
-                <Card className="comment-card">
-                  <TextArea name="comment" rows={4} placeholder={t('add_comment_area')} />
-                </Card>
-              </Form>
-            )}
-          </>
-        )}
-
+        {monthlyValue?.goal &&
+          // TeamLeader может писать комментарий при статусе PendingReview
+          ((monthlyValue?.isTeamLeader && monthlyValue?.status === 'PendingReview') ||
+            // TeamMember может писать, если статус НЕ Approved и НЕ PendingReview
+            (!monthlyValue?.isTeamLeader && !['Approved', 'PendingReview'].includes(monthlyValue?.status))) && (
+            <Form form={form} layout="vertical">
+              <Card className="comment-card">
+                <TextArea name="comment" rows={4} placeholder={t('add_comment_area')} />
+              </Card>
+            </Form>
+          )}
         <br />
         {monthlyValue?.goal && (
           <>
             {monthlyValue?.isTeamLeader ? (
               <>
-                {monthlyValue.status == 'PendingReview' && (
+                {monthlyValue.status == 'PendingReview' && monthlyValue.isSended && (
                   <div className="flex-button">
                     <Button onClick={() => handleChangeStatus(true)} label={t('approve')} type="primary" />
                     <Button

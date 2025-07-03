@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { StyledTeamLeadersList } from './style';
 import { Form } from 'antd';
 import { DatePicker, Select, SelectOption } from 'ui';
 import { useTranslation } from 'react-i18next';
 import dayjs from 'dayjs';
+import { useSearchParams } from 'react-router-dom';
 
 const months = [
   { value: '1', label: 'January' },
@@ -28,10 +29,37 @@ export function TeamLeadersFilter({ month, handleValueChange }: props) {
   const [form] = Form.useForm();
   const { t } = useTranslation();
   const currentYear = dayjs().year();
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const yearFromQuery = searchParams.get('year') || currentYear;
+  const monthFromQuery = searchParams.get('month') || (dayjs().month() + 1).toString();
+
+  useEffect(() => {
+    const initialValues: any = {
+      year: dayjs(`${yearFromQuery}-01-01`),
+    };
+    if (month) initialValues.month = monthFromQuery;
+
+    form.setFieldsValue(initialValues);
+
+    handleValueChange(initialValues);
+  }, [form]);
+
+  const onValuesChange = (changed: any, all: any) => {
+    const newParams = new URLSearchParams(searchParams);
+    if (all.year) {
+      newParams.set('year', dayjs(all.year).year().toString());
+    }
+    if (month && all.month) {
+      newParams.set('month', all.month.toString());
+    }
+    setSearchParams(newParams);
+    handleValueChange(all);
+  };
 
   return (
     <StyledTeamLeadersList>
-      <Form form={form} layout="vertical" onValuesChange={handleValueChange}>
+      <Form form={form} layout="vertical" onValuesChange={onValuesChange}>
         <DatePicker
           defaultValue={dayjs(`${currentYear}-01-01`)}
           label={t('select_year')}
@@ -46,6 +74,7 @@ export function TeamLeadersFilter({ month, handleValueChange }: props) {
             defaultValue={(dayjs().month() + 1).toString()}
             placeholder={t('please_select_month')}
             label={t('month')}
+            name="month"
           >
             {months.map((item, index) => (
               <SelectOption key={index} value={item.value}>
