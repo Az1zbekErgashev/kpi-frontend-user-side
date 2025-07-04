@@ -2,7 +2,7 @@ import { ColumnsType } from 'antd/es/table';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { Table } from 'ui';
+import { Notification, Table } from 'ui';
 
 type Status = 'NoWritte' | 'PendingReview' | 'Returned' | 'Approved';
 
@@ -72,6 +72,13 @@ export function ProcessList({ users, teamLeader }: props) {
     return statusColors[status];
   };
 
+  const handleNavigate = (record: any) => {
+    if (teamLeader) {
+      if (record.monthlyFinish) Notification({ text: t('please_fill_mobthly_target'), type: 'error' });
+      else navigate(`/goal/team-performance/${record.id}/${record.month}/${record.year}`);
+    } else navigate(`/goal/user-performance/${record.id}/${record.month}/${record.year}`);
+  };
+
   return (
     <div>
       <div>
@@ -79,8 +86,7 @@ export function ProcessList({ users, teamLeader }: props) {
       </div>
       <Table
         onRow={(record: any) => ({
-          onClick: () =>
-            navigate(`/goal/${teamLeader ? 'team' : 'user'}-performance/${record.id}/${record.month}/${record.year}`),
+          onClick: () => handleNavigate(record),
         })}
         columns={columns}
         dataSource={users?.items ?? []}
