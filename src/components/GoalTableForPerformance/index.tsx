@@ -325,10 +325,13 @@ export function GoalTableForPerformance({
           <PerformanceCommentHistory comment={{ comments: monthlyValue?.monthlyTargetComment }} />
         )}
         {monthlyValue?.goal &&
-          // TeamLeader может писать комментарий при статусе PendingReview
+          // ✅ TeamLeader может писать комментарий при статусе PendingReview
           ((monthlyValue?.isTeamLeader && monthlyValue?.status === 'PendingReview') ||
-            // TeamMember может писать, если статус НЕ Approved и НЕ PendingReview
-            (!monthlyValue?.isTeamLeader && !['Approved', 'PendingReview'].includes(monthlyValue?.status))) && (
+            // ✅ TeamMember: если статус НЕ Approved и (либо НЕ PendingReview, либо PendingReview + isSended === false)
+            (!monthlyValue?.isTeamLeader &&
+              monthlyValue?.status !== 'Approved' &&
+              (monthlyValue?.status !== 'PendingReview' ||
+                (monthlyValue?.status === 'PendingReview' && !monthlyValue?.isSended)))) && (
             <Form form={form} layout="vertical">
               <Card className="comment-card">
                 <TextArea name="comment" rows={4} placeholder={t('add_comment_area')} />
