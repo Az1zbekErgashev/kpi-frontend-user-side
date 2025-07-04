@@ -56,7 +56,7 @@ export function GoalTable({ goal, roleType, goalAndTeam }: props) {
                         : `: ${valueRatio ?? 0}% ${t(status)}`;
                     } else if (type === 'NumberOfTimesType') {
                       displayValue = valueText
-                        ? `${valueText} : ${valueNumber ?? 0} ${t(status)}`
+                        ? `${valueText} : ${valueNumber ?? 0}% ${t(status)}`
                         : `: ${valueNumber ?? 0}% ${t(status)}`;
                     } else if (type === 'IndividualEvaluation' || type === 'LeaderEvaluation') {
                       const label =
