@@ -13,3 +13,4 @@ export { TeamLeadersTabs } from './TeamLeaders/TeamLeadersTabs';
 export { MonthlyValue } from './MonthlyValue';
 export { GoalTableForPerformance } from './GoalTableForPerformance';
 export { PerformanceCommentHistory } from './PerformanceCommentHistory';
+export { EvaluationForm } from './EvaluationForm';

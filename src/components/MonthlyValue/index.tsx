@@ -1,9 +1,9 @@
 import React from 'react';
 import { StyledMonthlyValue } from './style';
 import useQueryApiClient from 'utils/useQueryApiClient';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { GoalTable } from 'components/GoalTable';
-import { GoalTableForPerformance } from 'components';
+import { EvaluationForm, GoalTableForPerformance } from 'components';
 import { useTranslation } from 'react-i18next';
 import { BackButton } from 'ui';
 
@@ -11,6 +11,8 @@ export function MonthlyValue() {
   const params = useParams();
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const location = useLocation();
+
   const { data: monthlyData } = useQueryApiClient({
     request: {
       url: '/api/monthlytarget',
@@ -66,6 +68,7 @@ export function MonthlyValue() {
         goalAndTeam={teamAndRoom?.data}
         monthlyValue={monthlyData?.data}
       />
+      {location.pathname.includes('/goal/team-performance') && <EvaluationForm />}
     </StyledMonthlyValue>
   );
 }
