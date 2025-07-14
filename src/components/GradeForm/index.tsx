@@ -23,7 +23,7 @@ interface ApiResponse {
     id: string;
     name: string;
     percentage: number;
-    periods: number[];
+    periods: string[];
     description: string;
   }[];
   statistics: {
@@ -91,31 +91,32 @@ const mockApiResponse: ApiResponse = {
       id: 'basic_performance',
       name: 'Basic Work Performance',
       percentage: 40,
-      periods: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+      periods: Array.from({ length: 12 }, (_, i) => `${i + 1}월`),
       description: 'Daily work quality and basic responsibilities',
     },
     {
       id: 'performance_evaluation',
       name: 'Performance Evaluation',
       percentage: 85,
-      periods: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+      periods: Array.from({ length: 12 }, (_, i) => `${i + 1}월`),
       description: 'Comprehensive performance assessment',
     },
     {
       id: 'attendance_check',
       name: 'Attendance & Punctuality',
       percentage: 13,
-      periods: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+      periods: Array.from({ length: 12 }, (_, i) => `${i + 1}월`),
       description: 'Attendance record and punctuality',
     },
     {
       id: 'training_participation',
       name: 'Training & Development',
       percentage: 15,
-      periods: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+      periods: Array.from({ length: 12 }, (_, i) => `${i + 1}월`),
       description: 'Training programs participation',
     },
   ],
+
   statistics: {
     totalStudents: 3,
     gradeDistribution: { A: 1, B: 2, C: 0, D: 0, F: 0 },
@@ -294,7 +295,8 @@ export function GradeDisplay() {
                     {/* Grade cells for each evaluation period */}
                     {data.evaluationPeriods.map((evaluation) =>
                       evaluation.periods.map((period) => {
-                        const grade = getGrade(student, evaluation.id, period);
+                        const periodNumber = parseInt(period.replace('월', ''), 10);
+                        const grade = getGrade(student, evaluation.id, periodNumber);
                         return (
                           <td
                             key={`${evaluation.id}-${period}`}
@@ -306,7 +308,6 @@ export function GradeDisplay() {
                         );
                       })
                     )}
-
                     {/* Annual Grade */}
                     <td className="annual-cell">
                       <div className={`annual-grade grade-${annualGrade.toLowerCase()}`}>{annualGrade}</div>
