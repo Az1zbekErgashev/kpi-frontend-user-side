@@ -363,12 +363,8 @@ export const StyledEvaluationForm = styled.div`
 
   /* Action Panel */
   .action-panel {
-    background: white;
     border-radius: 12px;
     padding: 24px;
-    box-shadow:
-      0 1px 3px rgba(0, 0, 0, 0.1),
-      0 1px 2px rgba(0, 0, 0, 0.06);
   }
 
   .action-buttons {

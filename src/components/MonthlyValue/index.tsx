@@ -3,7 +3,7 @@ import { StyledMonthlyValue } from './style';
 import useQueryApiClient from 'utils/useQueryApiClient';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { GoalTable } from 'components/GoalTable';
-import { EvaluationForm, GoalTableForPerformance } from 'components';
+import { EvaluationForm, GoalTableForPerformance, GradeDisplay } from 'components';
 import { useTranslation } from 'react-i18next';
 import { BackButton } from 'ui';
 
@@ -12,7 +12,7 @@ export function MonthlyValue() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
-
+  const [monthlyValue, setMonthlyValue] = React.useState<any>(null);
   const { data: monthlyData } = useQueryApiClient({
     request: {
       url: '/api/monthlytarget',
@@ -54,6 +54,8 @@ export function MonthlyValue() {
     }
   };
 
+  const onSubmitByTeam = () => {};
+
   return (
     <StyledMonthlyValue>
       <div>
@@ -68,7 +70,8 @@ export function MonthlyValue() {
         goalAndTeam={teamAndRoom?.data}
         monthlyValue={monthlyData?.data}
       />
-      {location.pathname.includes('/goal/team-performance') && <EvaluationForm />}
+      {location.pathname.includes('/goal/team-performance') && <EvaluationForm monthlyValue={monthlyData?.data} />}
+      <GradeDisplay />
     </StyledMonthlyValue>
   );
 }

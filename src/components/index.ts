@@ -14,3 +14,4 @@ export { MonthlyValue } from './MonthlyValue';
 export { GoalTableForPerformance } from './GoalTableForPerformance';
 export { PerformanceCommentHistory } from './PerformanceCommentHistory';
 export { EvaluationForm } from './EvaluationForm';
+export { GradeDisplay } from './GradeForm';

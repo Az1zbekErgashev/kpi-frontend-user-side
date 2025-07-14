@@ -43,7 +43,6 @@ export function GoalTableForPerformance({
   const [targets, setTargets] = useState<Target[]>([]);
   const [form] = Form.useForm();
   const navigate = useNavigate();
-  const { user } = useUser();
 
   useEffect(() => {
     if (monthlyValue?.monthlyTargetValue && Array.isArray(monthlyValue?.monthlyTargetValue)) {
@@ -321,54 +320,66 @@ export function GoalTableForPerformance({
           </table>
         </div>
         <br />
-        {monthlyValue?.monthlyTargetComment && (
-          <PerformanceCommentHistory comment={{ comments: monthlyValue?.monthlyTargetComment }} />
-        )}
-        {monthlyValue?.goal &&
-          // ✅ TeamLeader может писать комментарий при статусе PendingReview
-          ((monthlyValue?.isTeamLeader && monthlyValue?.status === 'PendingReview') ||
-            // ✅ TeamMember: если статус НЕ Approved и (либо НЕ PendingReview, либо PendingReview + isSended === false)
-            (!monthlyValue?.isTeamLeader &&
-              monthlyValue?.status !== 'Approved' &&
-              (monthlyValue?.status !== 'PendingReview' ||
-                (monthlyValue?.status === 'PendingReview' && !monthlyValue?.isSended)))) && (
-            <Form form={form} layout="vertical">
-              <Card className="comment-card">
-                <TextArea name="comment" rows={4} placeholder={t('add_comment_area')} />
-              </Card>
-            </Form>
-          )}
-        <br />
-        {monthlyValue?.goal && (
+        {!location.pathname.includes('team-performance') && (
           <>
-            {monthlyValue?.isTeamLeader ? (
+            {monthlyValue?.monthlyTargetComment && (
+              <PerformanceCommentHistory comment={{ comments: monthlyValue?.monthlyTargetComment }} />
+            )}
+          </>
+        )}
+        {!location.pathname.includes('team-performance') && (
+          <>
+            {monthlyValue?.goal &&
+              // ✅ TeamLeader может писать комментарий при статусе PendingReview
+              ((monthlyValue?.isTeamLeader && monthlyValue?.status === 'PendingReview') ||
+                // ✅ TeamMember: если статус НЕ Approved и (либо НЕ PendingReview, либо PendingReview + isSended === false)
+                (!monthlyValue?.isTeamLeader &&
+                  monthlyValue?.status !== 'Approved' &&
+                  (monthlyValue?.status !== 'PendingReview' ||
+                    (monthlyValue?.status === 'PendingReview' && !monthlyValue?.isSended)))) && (
+                <Form form={form} layout="vertical">
+                  <Card className="comment-card">
+                    <TextArea name="comment" rows={4} placeholder={t('add_comment_area')} />
+                  </Card>
+                </Form>
+              )}
+          </>
+        )}
+        <br />
+        {!location.pathname.includes('team-performance') && (
+          <>
+            {monthlyValue?.goal && (
               <>
-                {monthlyValue.status == 'PendingReview' && monthlyValue.isSended && (
-                  <div className="flex-button">
-                    <Button onClick={() => handleChangeStatus(true)} label={t('approve')} type="primary" />
-                    <Button
-                      onClick={() => handleChangeStatus(false)}
-                      label={t('reject_for_correct')}
-                      type="primary"
-                      danger
-                    />
-                  </div>
-                )}
-              </>
-            ) : (
-              <>
-                {((monthlyValue.status !== 'PendingReview' && monthlyValue?.status !== 'Approved') ||
-                  !monthlyValue?.isSended) && (
-                  <div className="submit-section">
-                    <Button
-                      type="primary"
-                      size="large"
-                      className="submit-btn"
-                      label={goal?.id ? t('update_yearly_gaol') : t('create_yearly_gaol')}
-                      htmlType="submit"
-                      onClick={handleSubmit}
-                    />
-                  </div>
+                {monthlyValue?.isTeamLeader ? (
+                  <>
+                    {monthlyValue.status == 'PendingReview' && monthlyValue.isSended && (
+                      <div className="flex-button">
+                        <Button onClick={() => handleChangeStatus(true)} label={t('approve')} type="primary" />
+                        <Button
+                          onClick={() => handleChangeStatus(false)}
+                          label={t('reject_for_correct')}
+                          type="primary"
+                          danger
+                        />
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  <>
+                    {((monthlyValue.status !== 'PendingReview' && monthlyValue?.status !== 'Approved') ||
+                      !monthlyValue?.isSended) && (
+                      <div className="submit-section">
+                        <Button
+                          type="primary"
+                          size="large"
+                          className="submit-btn"
+                          label={goal?.id ? t('update_yearly_gaol') : t('create_yearly_gaol')}
+                          htmlType="submit"
+                          onClick={handleSubmit}
+                        />
+                      </div>
+                    )}
+                  </>
                 )}
               </>
             )}

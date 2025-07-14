@@ -2,14 +2,18 @@
 
 import { useState } from 'react';
 import { StyledEvaluationForm } from './style';
-import { useParams } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import useQueryApiClient from 'utils/useQueryApiClient';
+import { PerformanceCommentHistory } from 'components';
+import { Card, Form } from 'antd';
+import { TextArea } from 'ui';
+import { useTranslation } from 'react-i18next';
 
 interface DivisionEvaluation {
   kpiDivisionId: number;
   divisionName: string;
+  ratio: any;
   grade?: string;
-  modifier?: string;
   score?: number;
   comment?: string;
   id?: number;
@@ -21,18 +25,12 @@ interface Employee {
   divisionEvaluations: DivisionEvaluation[];
 }
 
-interface ApiResponse {
-  status: boolean;
-  data: Employee[];
-}
-
 interface EvaluationInput {
   employeeId: number;
   fullName: string;
   evaluations: {
     [kpiDivisionId: number]: {
       grade?: string;
-      modifier?: string;
       score?: number;
       comment?: string;
       id?: number;
@@ -46,22 +44,26 @@ interface SubmitData {
   kpiDivisionId: number;
   year?: number | string;
   month?: number | string;
-  grade: string;
-  modifier: string;
-  score: number;
+  grade?: string;
+  score?: number;
   comment: string;
 }
 
 const gradeLetters = ['A', 'B', 'C'];
-const gradeSigns = ['0', '+', '-'];
 
-export function EvaluationForm() {
+interface props {
+  monthlyValue: any;
+}
+export function EvaluationForm({ monthlyValue }: props) {
   const params = useParams();
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [evaluations, setEvaluations] = useState<EvaluationInput[]>([]);
   const [divisions, setDivisions] = useState<DivisionEvaluation[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-
+  const [form] = Form.useForm();
+  const { t } = useTranslation();
+  const location = useLocation();
+  const navigate = useNavigate();
   const {} = useQueryApiClient({
     request: {
       url: '/api/evaluation',
@@ -83,6 +85,7 @@ export function EvaluationForm() {
             uniqueDivisions.push({
               kpiDivisionId: div.kpiDivisionId,
               divisionName: div.divisionName,
+              ratio: div.ratio,
             });
           }
         });
@@ -98,8 +101,8 @@ export function EvaluationForm() {
             ...acc,
             [div.kpiDivisionId]: {
               id: div.id || 0,
-              grade: div.grade || 'A',
-              score: div.score || 100,
+              grade: div.grade,
+              score: div.score,
               comment: div.comment || '',
             },
           }),
@@ -114,7 +117,7 @@ export function EvaluationForm() {
   const handleChange = (
     employeeIndex: number,
     kpiDivisionId: number,
-    field: 'grade' | 'modifier' | 'score' | 'comment',
+    field: 'grade' | 'score' | 'comment',
     value: string | number
   ) => {
     const newEvaluations = [...evaluations];
@@ -138,16 +141,12 @@ export function EvaluationForm() {
             kpiDivisionId: Number.parseInt(kpiDivisionId),
             year: params?.year,
             month: params?.month,
-            grade: evaluation.grade || 'A',
-            modifier: evaluation.modifier || '+',
-            score: evaluation.score || 100,
+            grade: evaluation.grade,
+            score: evaluation.score,
             comment: evaluation.comment || '',
           });
         });
       });
-
-      console.log(submitData);
-
       appendData(submitData);
     } catch (error) {
       console.error('Error submitting evaluation:', error);
@@ -163,13 +162,12 @@ export function EvaluationForm() {
     },
     onSuccess() {
       alert('Evaluation submitted successfully!');
+      navigate(-1);
     },
     onError(error) {
-      console.error('Submit error:', error);
       alert('Error submitting evaluation');
     },
   });
-  console.log(evaluations);
 
   if (employees.length === 0) {
     return (
@@ -184,22 +182,13 @@ export function EvaluationForm() {
   return (
     <StyledEvaluationForm>
       <div className="evaluation-container">
-        <header className="page-header">
-          <div className="header-content">
-            <h1 className="main-title">Employee Performance Evaluation</h1>
-            <p className="main-subtitle">
-              KPI Division Assessment Report - {params?.year}/{params?.month}
-            </p>
-          </div>
-        </header>
-
         <main className="evaluation-grid">
           {divisions.map((division) => (
             <section key={division.kpiDivisionId} className="evaluation-card">
               <header className="card-header">
                 <div className="category-info">
                   <h2 className="category-name">{division.divisionName}</h2>
-                  <span className="category-id">ID: {division.kpiDivisionId}</span>
+                  <span className="category-id">{division.ratio}%</span>
                 </div>
                 <p className="category-description">KPI Division Assessment</p>
               </header>
@@ -211,7 +200,6 @@ export function EvaluationForm() {
                       <th className="th-index">№</th>
                       <th className="th-employee">Employee</th>
                       <th className="th-grade">Grade</th>
-                      <th className="th-score">Score</th>
                       <th className="th-comments">Comments</th>
                     </tr>
                   </thead>
@@ -226,7 +214,6 @@ export function EvaluationForm() {
                       .map((employee, i) => {
                         const employeeIndex = evaluations.findIndex((emp) => emp.employeeId === employee.employeeId);
                         const currentEvaluation = employee.evaluations[division.kpiDivisionId] || {};
-
                         return (
                           <tr key={employee.employeeId} className="employee-row">
                             <td className="cell-index">
@@ -246,35 +233,19 @@ export function EvaluationForm() {
                             <td className="cell-grade">
                               <select
                                 className="grade-selector"
-                                value={currentEvaluation.grade || 'A'}
+                                value={currentEvaluation.grade}
                                 onChange={(e) =>
                                   handleChange(employeeIndex, division.kpiDivisionId, 'grade', e.target.value)
                                 }
+                                defaultValue={undefined}
                               >
+                                <option value={undefined}>-</option>
                                 {gradeLetters.map((grade) => (
                                   <option key={grade} value={grade}>
                                     {grade}
                                   </option>
                                 ))}
                               </select>
-                            </td>
-                            <td className="cell-score">
-                              <input
-                                type="number"
-                                className="score-input"
-                                min="0"
-                                max="100"
-                                value={currentEvaluation.score || 100}
-                                onChange={(e) =>
-                                  handleChange(
-                                    employeeIndex,
-                                    division.kpiDivisionId,
-                                    'score',
-                                    Number.parseInt(e.target.value) || 0
-                                  )
-                                }
-                                placeholder="0-100"
-                              />
                             </td>
                             <td className="cell-comments">
                               <textarea
@@ -297,10 +268,25 @@ export function EvaluationForm() {
           ))}
         </main>
 
+        {location.pathname.includes('team-performance') && (
+          <>
+            <PerformanceCommentHistory comment={{ comments: monthlyValue?.monthlyTargetComment }} />
+          </>
+        )}
+        {location.pathname.includes('team-performance') && (
+          <>
+            <Form form={form} layout="vertical">
+              <Card className="comment-card">
+                <TextArea name="comment" rows={4} placeholder={t('add_comment_area')} />
+              </Card>
+            </Form>
+          </>
+        )}
+
         <footer className="action-panel">
           <div className="action-buttons">
             <button type="button" className="action-btn primary-btn" onClick={handleSubmit} disabled={isLoading}>
-              <span className="btn-text">{isLoading ? 'Submitting...' : 'Update Evaluation'}</span>
+              <span className="btn-text">Send Request</span>
             </button>
           </div>
         </footer>
