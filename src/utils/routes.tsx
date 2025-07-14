@@ -53,14 +53,4 @@ export const router = createBrowserRouter([
       </ProtectedUserRoute>
     ),
   },
-  {
-    path: '/goal/team-performance/:id/:month/:year',
-    element: (
-      <ProtectedUserRoute>
-        <DefaultLayout title="goal_setting">
-          <MonthlyValue />
-        </DefaultLayout>
-      </ProtectedUserRoute>
-    ),
-  },
 ]);
