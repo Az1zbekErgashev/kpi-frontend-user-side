@@ -65,6 +65,7 @@ export function EvaluationForm({ monthlyValue, onSubmit, setComment }: props) {
   const [form] = Form.useForm();
   const { t } = useTranslation();
   const location = useLocation();
+  const navigate = useNavigate();
   const {} = useQueryApiClient({
     request: {
       url: '/api/evaluation',
@@ -148,7 +149,7 @@ export function EvaluationForm({ monthlyValue, onSubmit, setComment }: props) {
           });
         });
       });
-      //appendData(submitData);
+      appendData(submitData);
       onSubmit && onSubmit();
     } catch (error) {
       console.error('Error submitting evaluation:', error);
@@ -164,7 +165,7 @@ export function EvaluationForm({ monthlyValue, onSubmit, setComment }: props) {
     },
     onSuccess() {
       alert('Evaluation submitted successfully!');
-      //  navigate(-1);
+      navigate(-1);
     },
     onError(error) {
       alert('Error submitting evaluation');
