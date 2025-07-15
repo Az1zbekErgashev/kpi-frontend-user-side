@@ -5,7 +5,10 @@ interface adminNavigate {
   children?: { key: string; path: string }[];
 }
 
-export const ADMIN_NAVIGATE: adminNavigate[] = [{ key: 'home', path: '/', icon: 'dashboard' }];
+export const ADMIN_NAVIGATE: adminNavigate[] = [
+  { key: 'evaluation', path: '/', icon: 'dashboard' },
+  { key: 'team_performance', path: '/performance', icon: 'performance' },
+];
 
 export const USER_ROLE = [
   { value: 0, key: 'seo' },

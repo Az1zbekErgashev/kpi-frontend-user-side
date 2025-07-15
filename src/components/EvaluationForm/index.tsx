@@ -53,8 +53,10 @@ const gradeLetters = ['A', 'B', 'C'];
 
 interface props {
   monthlyValue: any;
+  onSubmit: any;
+  setComment: any;
 }
-export function EvaluationForm({ monthlyValue }: props) {
+export function EvaluationForm({ monthlyValue, onSubmit, setComment }: props) {
   const params = useParams();
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [evaluations, setEvaluations] = useState<EvaluationInput[]>([]);
@@ -63,7 +65,6 @@ export function EvaluationForm({ monthlyValue }: props) {
   const [form] = Form.useForm();
   const { t } = useTranslation();
   const location = useLocation();
-  const navigate = useNavigate();
   const {} = useQueryApiClient({
     request: {
       url: '/api/evaluation',
@@ -147,7 +148,8 @@ export function EvaluationForm({ monthlyValue }: props) {
           });
         });
       });
-      appendData(submitData);
+      //appendData(submitData);
+      onSubmit && onSubmit();
     } catch (error) {
       console.error('Error submitting evaluation:', error);
     } finally {
@@ -162,7 +164,7 @@ export function EvaluationForm({ monthlyValue }: props) {
     },
     onSuccess() {
       alert('Evaluation submitted successfully!');
-      navigate(-1);
+      //  navigate(-1);
     },
     onError(error) {
       alert('Error submitting evaluation');
@@ -275,7 +277,15 @@ export function EvaluationForm({ monthlyValue }: props) {
         )}
         {location.pathname.includes('team-performance') && (
           <>
-            <Form form={form} layout="vertical">
+            <Form
+              onValuesChange={(changedValues) => {
+                if (setComment && changedValues.comment !== undefined) {
+                  setComment(changedValues.comment);
+                }
+              }}
+              form={form}
+              layout="vertical"
+            >
               <Card className="comment-card">
                 <TextArea name="comment" rows={4} placeholder={t('add_comment_area')} />
               </Card>

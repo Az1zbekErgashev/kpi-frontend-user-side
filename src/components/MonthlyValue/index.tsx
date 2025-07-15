@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { StyledMonthlyValue } from './style';
 import useQueryApiClient from 'utils/useQueryApiClient';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
@@ -12,7 +12,8 @@ export function MonthlyValue() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
-  const [monthlyValue, setMonthlyValue] = React.useState<any>(null);
+  const [targets, setTargets] = useState<any>([]);
+  const [comment, setComment] = useState<any>('');
   const { data: monthlyData } = useQueryApiClient({
     request: {
       url: '/api/monthlytarget',
@@ -46,8 +47,15 @@ export function MonthlyValue() {
     },
   });
 
-  const onSubmit = (data: any) => {
-    if (monthlyData?.data?.monthlyTargetValue && monthlyData?.data?.monthlyTargetValue.length > 0) {
+  const onSubmit = () => {
+    const data = {
+      comment,
+      targets,
+      goalId: monthlyData?.data?.goal?.id,
+      month: params.month,
+      year: params.year,
+    };
+    if (monthlyData?.data?.monthlyTargetValue?.length > 0) {
       updateMonthData(data);
     } else {
       createMonthData(data);
@@ -69,8 +77,11 @@ export function MonthlyValue() {
         roleType="TEAM_LEADER"
         goalAndTeam={teamAndRoom?.data}
         monthlyValue={monthlyData?.data}
+        setTarget={setTargets}
       />
-      {location.pathname.includes('/goal/team-performance') && <EvaluationForm monthlyValue={monthlyData?.data} />}
+      {location.pathname.includes('/goal/team-performance') && (
+        <EvaluationForm onSubmit={onSubmit} monthlyValue={monthlyData?.data} setComment={setComment} />
+      )}
       <GradeDisplay />
     </StyledMonthlyValue>
   );

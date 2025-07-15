@@ -3,11 +3,10 @@ import { StyledGoalTable } from '../GoalTable/style';
 import { useTranslation } from 'react-i18next';
 import { ApiData } from 'types/User';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
-import { Button, TextArea } from 'ui';
+import { Button, Input, TextArea } from 'ui';
 import { Card, Form } from 'antd';
 import { PerformanceCommentHistory } from 'components';
 import useQueryApiClient from 'utils/useQueryApiClient';
-import { useUser } from 'hooks/useUserState';
 
 interface Target {
   valueRatio?: number;
@@ -23,8 +22,9 @@ interface props {
   roleType: 'CEO' | 'TEAM_LEADER' | 'TEAM_MEMBER';
   goalAndTeam: { team: string; room: string };
   isEditing?: boolean;
-  onSubmit?: (value: any) => void;
+  onSubmit?: () => void;
   monthlyValue: any;
+  setTarget?: (targets: Target[]) => void;
 }
 
 export function GoalTableForPerformance({
@@ -34,6 +34,7 @@ export function GoalTableForPerformance({
   isEditing = true,
   onSubmit,
   monthlyValue,
+  setTarget,
 }: props) {
   const { t } = useTranslation();
   const params = useParams();
@@ -78,16 +79,7 @@ export function GoalTableForPerformance({
   };
 
   const handleSubmit = () => {
-    if (onSubmit) {
-      const data = {
-        comment: form.getFieldValue('comment'),
-        targets,
-        goalId: goal?.id,
-        month: params.month,
-        year: params.year,
-      };
-      onSubmit(data);
-    }
+    onSubmit && onSubmit();
   };
 
   const { appendData: changeStatusMonthData } = useQueryApiClient({
@@ -110,6 +102,10 @@ export function GoalTableForPerformance({
     };
     changeStatusMonthData(data);
   };
+
+  useEffect(() => {
+    setTarget && setTarget(targets);
+  }, [targets]);
 
   return (
     <StyledGoalTable>
@@ -330,9 +326,7 @@ export function GoalTableForPerformance({
         {!location.pathname.includes('team-performance') && (
           <>
             {monthlyValue?.goal &&
-              // ✅ TeamLeader может писать комментарий при статусе PendingReview
               ((monthlyValue?.isTeamLeader && monthlyValue?.status === 'PendingReview') ||
-                // ✅ TeamMember: если статус НЕ Approved и (либо НЕ PendingReview, либо PendingReview + isSended === false)
                 (!monthlyValue?.isTeamLeader &&
                   monthlyValue?.status !== 'Approved' &&
                   (monthlyValue?.status !== 'PendingReview' ||

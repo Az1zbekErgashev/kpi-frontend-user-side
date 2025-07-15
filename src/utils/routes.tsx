@@ -1,6 +1,6 @@
 import { MonthlyValue } from 'components/MonthlyValue';
 import DefaultLayout from 'layouts/DefaultLayout';
-import { Login, TeamLeaders, GoalPage, GoalByUser } from 'pages';
+import { Login, TeamLeaders, GoalPage, GoalByUser, Evaluation } from 'pages';
 import { createBrowserRouter, Navigate } from 'react-router-dom';
 import ProtectedUserRoute from 'routes/ProtectedUserRoutes';
 
@@ -14,7 +14,7 @@ export const router = createBrowserRouter([
     element: <Navigate to="/login" replace />,
   },
   {
-    path: '/',
+    path: '/performance',
     element: (
       <ProtectedUserRoute>
         <DefaultLayout title="team_leaders">
@@ -59,6 +59,16 @@ export const router = createBrowserRouter([
       <ProtectedUserRoute>
         <DefaultLayout title="goal_setting">
           <MonthlyValue />
+        </DefaultLayout>
+      </ProtectedUserRoute>
+    ),
+  },
+  {
+    path: '/',
+    element: (
+      <ProtectedUserRoute>
+        <DefaultLayout title="evaluation">
+          <Evaluation />
         </DefaultLayout>
       </ProtectedUserRoute>
     ),
