@@ -14,7 +14,7 @@ export const router = createBrowserRouter([
     element: <Navigate to="/login" replace />,
   },
   {
-    path: '/performance',
+    path: '/',
     element: (
       <ProtectedUserRoute>
         <DefaultLayout title="team_leaders">
@@ -59,16 +59,6 @@ export const router = createBrowserRouter([
       <ProtectedUserRoute>
         <DefaultLayout title="goal_setting">
           <MonthlyValue />
-        </DefaultLayout>
-      </ProtectedUserRoute>
-    ),
-  },
-  {
-    path: '/',
-    element: (
-      <ProtectedUserRoute>
-        <DefaultLayout title="evaluation">
-          <Evaluation />
         </DefaultLayout>
       </ProtectedUserRoute>
     ),

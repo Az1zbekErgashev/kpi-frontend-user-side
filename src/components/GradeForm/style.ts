@@ -93,6 +93,7 @@ export const StyledGradeForm = styled.div`
     background: #f1f5f9 !important;
     width: 200px;
     min-width: 200px;
+    margin-top: 100px;
   }
 
   .category-cell {
@@ -100,7 +101,7 @@ export const StyledGradeForm = styled.div`
   }
 
   .category-cell.category-basic_performance {
-    background: #fce7f3 !important;
+    /* background: #fce7f3 !important; */
   }
 
   .category-cell.category-performance_evaluation {
@@ -145,6 +146,7 @@ export const StyledGradeForm = styled.div`
     background: #fef3c7 !important;
     width: 100px;
     min-width: 100px;
+    background-color: green;
   }
 
   /* Period header */
@@ -161,18 +163,22 @@ export const StyledGradeForm = styled.div`
 
   .period-cell.category-basic_performance {
     background: #fce7f3 !important;
+    padding: 8px;
   }
 
   .period-cell.category-performance_evaluation {
     background: #dbeafe !important;
+    padding: 8px;
   }
 
   .period-cell.category-attendance_check {
     background: #bfdbfe !important;
+    padding: 8px;
   }
 
   .period-cell.category-training_participation {
     background: #dcfce7 !important;
+    padding: 8px;
   }
 
   /* Table body */
@@ -547,7 +553,7 @@ export const StyledGradeForm = styled.div`
   }
 
   ::-webkit-scrollbar-thumb {
-    background: #3b82f6; 
+    background: #3b82f6;
     border-radius: 10px;
   }
 
