@@ -227,4 +227,18 @@ export const StyledGoalTable = styled.div`
       align-self: flex-start;
     }
   }
+
+  .flex {
+    display: flex;
+    gap: 5px;
+    input {
+      width: 60px;
+    }
+  }
+
+  textarea {
+    width: 100%;
+    border: 1px solid black;
+    padding: 5px;
+  }
 `;

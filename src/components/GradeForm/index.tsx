@@ -1,4 +1,3 @@
-import { useState, useEffect } from 'react';
 import React from 'react';
 import { StyledGradeForm } from './style';
 import useQueryApiClient from 'utils/useQueryApiClient';
@@ -74,15 +73,14 @@ export function GradeDisplay() {
       }
     });
 
-    if (totalWeight === 0) return 'F';
+    if (totalWeight === 0) return 'not_grade';
 
     const finalPoints = totalWeightedPoints / totalWeight;
 
-    // Convert back to letter grade
     if (finalPoints >= 3.5) return 'A';
     if (finalPoints >= 2.5) return 'B';
     if (finalPoints >= 1.5) return 'C';
-    return 'F';
+    return 'not_grade';
   };
 
   const getGrade = (student: ApiResponse['students'][0], evaluationId: string, period: number): string => {
@@ -91,6 +89,7 @@ export function GradeDisplay() {
 
   return (
     <StyledGradeForm>
+      <br />
       <div className="grade-system">
         <div className="table-container">
           <table className="grade-table">
@@ -113,7 +112,6 @@ export function GradeDisplay() {
                 </th>
               </tr>
 
-              {/* Second header row - Period numbers */}
               <tr className="period-header">
                 {evaluationData?.data?.evaluationPeriods.map(
                   (evaluation: any) =>
@@ -126,13 +124,11 @@ export function GradeDisplay() {
               </tr>
             </thead>
 
-            {/* Table Body */}
             <tbody>
               {evaluationData?.data?.students?.map((student: any) => {
                 const annualGrade = calculateAnnualGrade(student, evaluationData?.data?.evaluationPeriods);
                 return (
                   <tr key={student.id} className="student-row">
-                    {/* Student Information */}
                     <td className="student-info-cell">
                       <div className="student-details">
                         <div className="student-main">

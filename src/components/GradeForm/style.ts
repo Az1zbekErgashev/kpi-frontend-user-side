@@ -2,7 +2,7 @@ import styled from 'styled-components';
 
 export const StyledGradeForm = styled.div`
   .grade-system {
-    padding: 20px;
+    padding: 20px 0;
     max-width: 100%; /* Ensure it respects viewport width */
     overflow-x: hidden; /* Hide overflow on the main container */
     display: flex;

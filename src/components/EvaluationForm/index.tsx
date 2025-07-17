@@ -66,6 +66,8 @@ export function EvaluationForm({ monthlyValue, onSubmit, setComment }: props) {
   const { t } = useTranslation();
   const location = useLocation();
   const navigate = useNavigate();
+  console.log(monthlyValue);
+
   const {} = useQueryApiClient({
     request: {
       url: '/api/evaluation',
@@ -225,6 +227,9 @@ export function EvaluationForm({ monthlyValue, onSubmit, setComment }: props) {
                                 type="hidden"
                                 name={`evaluation_${employee.employeeId}_${division.kpiDivisionId}_id`}
                                 value={currentEvaluation.id || 0}
+                                disabled={
+                                  monthlyValue?.status !== 'Approved' && monthlyValue?.status !== 'PendingReview'
+                                }
                               />
                             </td>
                             <td className="cell-employee">
@@ -241,6 +246,7 @@ export function EvaluationForm({ monthlyValue, onSubmit, setComment }: props) {
                                   handleChange(employeeIndex, division.kpiDivisionId, 'grade', e.target.value)
                                 }
                                 defaultValue={undefined}
+                                disabled={monthlyValue?.status == 'Approved' || monthlyValue?.status == 'PendingReview'}
                               >
                                 <option value={undefined}>-</option>
                                 {gradeLetters.map((grade) => (
@@ -259,6 +265,7 @@ export function EvaluationForm({ monthlyValue, onSubmit, setComment }: props) {
                                 }
                                 placeholder={`Enter assessment for ${division.divisionName}...`}
                                 rows={3}
+                                disabled={monthlyValue?.status == 'Approved' || monthlyValue?.status == 'PendingReview'}
                               />
                             </td>
                           </tr>
@@ -293,14 +300,15 @@ export function EvaluationForm({ monthlyValue, onSubmit, setComment }: props) {
             </Form>
           </>
         )}
-
-        <footer className="action-panel">
-          <div className="action-buttons">
-            <button type="button" className="action-btn primary-btn" onClick={handleSubmit} disabled={isLoading}>
-              <span className="btn-text">Send Request</span>
-            </button>
-          </div>
-        </footer>
+        {monthlyValue?.status !== 'Approved' && monthlyValue?.status !== 'PendingReview' && (
+          <footer className="action-panel">
+            <div className="action-buttons">
+              <button type="button" className="action-btn primary-btn" onClick={handleSubmit} disabled={isLoading}>
+                <span className="btn-text">{t('send_request')}</span>
+              </button>
+            </div>
+          </footer>
+        )}
       </div>
     </StyledEvaluationForm>
   );

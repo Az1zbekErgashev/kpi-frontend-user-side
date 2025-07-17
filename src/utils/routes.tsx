@@ -1,6 +1,6 @@
 import { MonthlyValue } from 'components/MonthlyValue';
 import DefaultLayout from 'layouts/DefaultLayout';
-import { Login, TeamLeaders, GoalPage, GoalByUser, Evaluation } from 'pages';
+import { Login, TeamLeaders, GoalPage, GoalByUser } from 'pages';
 import { createBrowserRouter, Navigate } from 'react-router-dom';
 import ProtectedUserRoute from 'routes/ProtectedUserRoutes';
 
