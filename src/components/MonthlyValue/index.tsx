@@ -62,8 +62,6 @@ export function MonthlyValue() {
     }
   };
 
-  const onSubmitByTeam = () => {};
-
   return (
     <StyledMonthlyValue>
       <div>
@@ -82,7 +80,7 @@ export function MonthlyValue() {
       {location.pathname.includes('/goal/team-performance') && (
         <EvaluationForm onSubmit={onSubmit} monthlyValue={monthlyData?.data} setComment={setComment} />
       )}
-      <GradeDisplay />
+      {location.pathname.includes('/goal/team-performance') && <GradeDisplay />}
     </StyledMonthlyValue>
   );
 }
