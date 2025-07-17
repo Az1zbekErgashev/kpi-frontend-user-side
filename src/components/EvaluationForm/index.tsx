@@ -143,7 +143,7 @@ export function EvaluationForm({ monthlyValue, onSubmit, setComment }: props) {
             kpiDivisionId: Number.parseInt(kpiDivisionId),
             year: params?.year,
             month: params?.month,
-            grade: evaluation.grade,
+            grade: evaluation.grade == '-' ? undefined : evaluation.grade,
             score: evaluation.score,
             comment: evaluation.comment || '',
           });
