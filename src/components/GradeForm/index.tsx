@@ -5,6 +5,7 @@ import React from 'react';
 import { useState } from 'react';
 import useQueryApiClient from 'utils/useQueryApiClient';
 import { StyledGradeForm } from './style';
+import { useParams } from 'react-router-dom';
 
 interface ApiResponse {
   students: {
@@ -64,9 +65,11 @@ export function GradeDisplay() {
   const [data, setData] = useState<ApiResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const params = useParams();
+
   const {} = useQueryApiClient({
     request: {
-      url: '/api/evaluation/all-evaluation?year=2025',
+      url: `/api/evaluation/all-evaluation?year=${params.year}`,
     },
     onSuccess(response) {
       setData(response.data);

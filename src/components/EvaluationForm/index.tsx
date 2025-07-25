@@ -156,8 +156,6 @@ export function EvaluationForm({ monthlyValue, onSubmit, setComment }: props) {
         });
       });
 
-      console.log(submitData);
-
       appendData(submitData);
       onSubmit && onSubmit();
     } catch (error) {
