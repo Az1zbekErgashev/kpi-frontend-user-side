@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import { StyledGoalTable } from '../GoalTable/style';
-import { useTranslation } from 'react-i18next';
-import { ApiData } from 'types/User';
-import { useLocation, useNavigate, useParams } from 'react-router-dom';
-import { Button, TextArea } from 'ui';
 import { Card, Form } from 'antd';
 import { PerformanceCommentHistory } from 'components';
+import { StyledGoalTable } from 'components/GoalTable/style';
+import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import { ApiData } from 'types/User';
+import { Button, TextArea } from 'ui';
 import useQueryApiClient from 'utils/useQueryApiClient';
 
 interface Target {
@@ -27,7 +27,7 @@ interface props {
   setTarget?: (targets: Target[]) => void;
 }
 
-export function GoalTableForPerformance({
+export function UserMonthlyPerformance({
   goal,
   roleType,
   goalAndTeam,
@@ -109,13 +109,11 @@ export function GoalTableForPerformance({
 
   const isTeamLeader = monthlyValue?.isTeamLeader;
   const status = monthlyValue?.status;
-  const isSended = monthlyValue?.isSended;
 
   const isEditableByEmployee = !isTeamLeader && (status === 'Returned' || status === 'NoWrite');
   const isCommentableByEmployee = isEditableByEmployee;
 
   const isCommentableByLeader = isTeamLeader && status === 'PendingReview';
-  const currentStatus = monthlyValue?.status;
 
   return (
     <StyledGoalTable>
@@ -129,7 +127,7 @@ export function GoalTableForPerformance({
                     colSpan={4}
                     className="main-header"
                     dangerouslySetInnerHTML={{
-                      __html: t(roleType === 'CEO' ? 'goal_table_header_ceo_title' : 'goal_table_header_team_title')
+                      __html: t('goal_table_header_team_title')
                         .replace('{year}', year?.toString() ?? newDateTime)
                         .replace('{room}', goalAndTeam?.room || '')
                         .replace('{team}', goalAndTeam?.team || ''),
@@ -317,25 +315,19 @@ export function GoalTableForPerformance({
 
         <br />
 
-        {!location.pathname.includes('team-performance') && (
-          <>
-            {monthlyValue?.goal && (
-              <>
-                {isTeamLeader && currentStatus === 'PendingReview' && isSended && (
-                  <div className="flex-button">
-                    <Button onClick={() => handleChangeStatus(true)} label={t('approve')} type="primary" />
-                    <Button
-                      onClick={() => handleChangeStatus(false)}
-                      label={t('reject_for_correct')}
-                      type="primary"
-                      danger
-                    />
-                  </div>
-                )}
-              </>
-            )}
-          </>
-        )}
+        {!location.pathname.includes('team-performance') &&
+          ['nowritte', 'returned'].includes(monthlyValue?.status?.toLowerCase?.() ?? '') && (
+            <div className="submit-section">
+              <Button
+                type="primary"
+                size="large"
+                className="submit-btn"
+                label={goal?.id ? t('update_yearly_gaol') : t('create_yearly_gaol')}
+                htmlType="submit"
+                onClick={handleSubmit}
+              />
+            </div>
+          )}
       </div>
     </StyledGoalTable>
   );

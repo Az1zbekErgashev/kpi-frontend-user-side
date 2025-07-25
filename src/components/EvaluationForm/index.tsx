@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { StyledEvaluationForm } from './style';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import useQueryApiClient from 'utils/useQueryApiClient';
@@ -15,6 +15,7 @@ interface DivisionEvaluation {
   ratio: any;
   grade?: string;
   score?: number;
+  scoreId?: number;
   comment?: string;
   id?: number;
 }
@@ -33,6 +34,7 @@ interface EvaluationInput {
       grade?: string;
       score?: number;
       comment?: string;
+      scoreId?: number;
       id?: number;
     };
   };
@@ -45,11 +47,9 @@ interface SubmitData {
   year?: number | string;
   month?: number | string;
   grade?: string;
-  score?: number;
+  scoreId?: number;
   comment: string;
 }
-
-const gradeLetters = ['A', 'B', 'C'];
 
 interface props {
   monthlyValue: any;
@@ -66,7 +66,6 @@ export function EvaluationForm({ monthlyValue, onSubmit, setComment }: props) {
   const { t } = useTranslation();
   const location = useLocation();
   const navigate = useNavigate();
-  console.log(monthlyValue);
 
   const {} = useQueryApiClient({
     request: {
@@ -90,6 +89,7 @@ export function EvaluationForm({ monthlyValue, onSubmit, setComment }: props) {
               kpiDivisionId: div.kpiDivisionId,
               divisionName: div.divisionName,
               ratio: div.ratio,
+              scoreId: div.scoreId,
             });
           }
         });
@@ -108,6 +108,7 @@ export function EvaluationForm({ monthlyValue, onSubmit, setComment }: props) {
               grade: div.grade,
               score: div.score,
               comment: div.comment || '',
+              scoreId: div.scoreId,
             },
           }),
           {}
@@ -139,18 +140,24 @@ export function EvaluationForm({ monthlyValue, onSubmit, setComment }: props) {
 
       evaluations.forEach((employee) => {
         Object.entries(employee.evaluations).forEach(([kpiDivisionId, evaluation]) => {
+          const divisionId = Number(kpiDivisionId);
+          const selectedScore = evaluation.score;
+          const scoreId = scoreIdMap?.[divisionId]?.[selectedScore ?? 0];
+
           submitData.push({
             id: evaluation.id || 0,
             userId: employee.employeeId,
-            kpiDivisionId: Number.parseInt(kpiDivisionId),
+            kpiDivisionId: divisionId,
             year: params?.year,
             month: params?.month,
-            grade: evaluation.grade == '-' ? undefined : evaluation.grade,
-            score: evaluation.score,
+            scoreId: scoreId,
             comment: evaluation.comment || '',
           });
         });
       });
+
+      console.log(submitData);
+
       appendData(submitData);
       onSubmit && onSubmit();
     } catch (error) {
@@ -173,6 +180,34 @@ export function EvaluationForm({ monthlyValue, onSubmit, setComment }: props) {
       alert('Error submitting evaluation');
     },
   });
+
+  const { data: scoresData } = useQueryApiClient({
+    request: {
+      url: `/api/evaluation/all-score?year=${params.year}`,
+    },
+  });
+
+  const scoresMap = useMemo(() => {
+    const map: { [divisionId: number]: { grade: string; score: number; scoreId: number }[] } = {};
+    scoresData?.data?.forEach((item: any) => {
+      if (!map[item.divisionId]) {
+        map[item.divisionId] = [];
+      }
+      map[item.divisionId].push(item);
+    });
+    return map;
+  }, [scoresData]);
+
+  const scoreIdMap = useMemo(() => {
+    const map: { [divisionId: number]: { [scoreId: number]: number } } = {};
+    scoresData?.data?.forEach((item: any) => {
+      if (!map[item.divisionId]) {
+        map[item.divisionId] = {};
+      }
+      map[item.divisionId][item.scoreId] = item.scoreId;
+    });
+    return map;
+  }, [scoresData]);
 
   if (employees.length === 0) {
     return (
@@ -219,6 +254,7 @@ export function EvaluationForm({ monthlyValue, onSubmit, setComment }: props) {
                       .map((employee, i) => {
                         const employeeIndex = evaluations.findIndex((emp) => emp.employeeId === employee.employeeId);
                         const currentEvaluation = employee.evaluations[division.kpiDivisionId] || {};
+
                         return (
                           <tr key={employee.employeeId} className="employee-row">
                             <td className="cell-index">
@@ -241,17 +277,18 @@ export function EvaluationForm({ monthlyValue, onSubmit, setComment }: props) {
                             <td className="cell-grade">
                               <select
                                 className="grade-selector"
-                                value={currentEvaluation.grade}
+                                value={currentEvaluation.scoreId ?? ''}
                                 onChange={(e) =>
-                                  handleChange(employeeIndex, division.kpiDivisionId, 'grade', e.target.value)
+                                  handleChange(employeeIndex, division.kpiDivisionId, 'score', Number(e.target.value))
                                 }
-                                defaultValue={undefined}
-                                disabled={monthlyValue?.status == 'Approved' || monthlyValue?.status == 'PendingReview'}
+                                disabled={
+                                  monthlyValue?.status === 'Approved' || monthlyValue?.status === 'PendingReview'
+                                }
                               >
-                                <option value={undefined}>-</option>
-                                {gradeLetters.map((grade) => (
-                                  <option key={grade} value={grade}>
-                                    {grade}
+                                <option value="">-</option>
+                                {(scoresMap[division.kpiDivisionId] || []).map((scoreItem) => (
+                                  <option key={scoreItem.scoreId} value={scoreItem.scoreId}>
+                                    {scoreItem?.grade?.toUpperCase()}
                                   </option>
                                 ))}
                               </select>

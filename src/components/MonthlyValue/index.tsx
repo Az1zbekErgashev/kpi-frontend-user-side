@@ -6,6 +6,7 @@ import { GoalTable } from 'components/GoalTable';
 import { EvaluationForm, GoalTableForPerformance, GradeDisplay } from 'components';
 import { useTranslation } from 'react-i18next';
 import { BackButton } from 'ui';
+import { UserMonthlyPerformance } from 'pages/UserMonthlyPerformance';
 
 export function MonthlyValue() {
   const params = useParams();
@@ -69,14 +70,26 @@ export function MonthlyValue() {
       </div>
       <GoalTable goal={monthlyData?.data?.goal} roleType="TEAM_LEADER" goalAndTeam={teamAndRoom?.data} />
       <br />
-      <GoalTableForPerformance
-        onSubmit={onSubmit}
-        goal={monthlyData?.data?.goal}
-        roleType="TEAM_LEADER"
-        goalAndTeam={teamAndRoom?.data}
-        monthlyValue={monthlyData?.data}
-        setTarget={setTargets}
-      />
+      {monthlyData?.data?.isTeamLeader ? (
+        <GoalTableForPerformance
+          onSubmit={onSubmit}
+          goal={monthlyData?.data?.goal}
+          roleType="TEAM_LEADER"
+          goalAndTeam={teamAndRoom?.data}
+          monthlyValue={monthlyData?.data}
+          setTarget={setTargets}
+        />
+      ) : (
+        <UserMonthlyPerformance
+          onSubmit={onSubmit}
+          goal={monthlyData?.data?.goal}
+          roleType="TEAM_LEADER"
+          goalAndTeam={teamAndRoom?.data}
+          monthlyValue={monthlyData?.data}
+          setTarget={setTargets}
+        />
+      )}
+
       {location.pathname.includes('/goal/team-performance') && (
         <EvaluationForm onSubmit={onSubmit} monthlyValue={monthlyData?.data} setComment={setComment} />
       )}
