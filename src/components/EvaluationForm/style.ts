@@ -128,7 +128,6 @@ export const StyledEvaluationForm = styled.div`
     background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
     padding: 24px;
     color: white;
-    min-height: 120px;
     display: grid;
     grid-template-rows: auto 1fr;
     align-content: start;
@@ -139,7 +138,6 @@ export const StyledEvaluationForm = styled.div`
     grid-template-columns: 1fr auto;
     align-items: center;
     gap: 16px;
-    margin-bottom: 8px;
   }
 
   .category-name {
@@ -271,6 +269,7 @@ export const StyledEvaluationForm = styled.div`
     font-size: 0.875rem;
     margin-bottom: 4px;
     line-height: 1.3;
+    cursor: pointer;
   }
 
   .employee-id {

@@ -1,12 +1,12 @@
 import { Card, Form } from 'antd';
+import { FormInstance } from 'antd/lib';
 import { PerformanceCommentHistory } from 'components';
 import { StyledGoalTable } from 'components/GoalTable/style';
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import { useLocation,  useParams } from 'react-router-dom';
 import { ApiData } from 'types/User';
 import { Button, TextArea } from 'ui';
-import useQueryApiClient from 'utils/useQueryApiClient';
 
 interface Target {
   valueRatio?: number;
@@ -25,25 +25,22 @@ interface props {
   onSubmit?: () => void;
   monthlyValue: any;
   setTarget?: (targets: Target[]) => void;
+  form: FormInstance;
 }
 
 export function UserMonthlyPerformance({
   goal,
   roleType,
-  goalAndTeam,
   isEditing = true,
   onSubmit,
   monthlyValue,
   setTarget,
+  form,
 }: props) {
   const { t } = useTranslation();
   const params = useParams();
-  const year = params.year;
-  const newDateTime = new Date().getFullYear().toString();
   const location = useLocation();
   const [targets, setTargets] = useState<Target[]>([]);
-  const [form] = Form.useForm();
-  const navigate = useNavigate();
 
   useEffect(() => {
     if (monthlyValue?.monthlyTargetValue && Array.isArray(monthlyValue?.monthlyTargetValue)) {
@@ -59,13 +56,7 @@ export function UserMonthlyPerformance({
     }
   }, [monthlyValue?.monthlyTargetValue]);
 
-  const handleInputChange = (
-    divisionIndex: number,
-    goalIndex: number,
-    field: keyof Target,
-    value: string | number,
-    id?: number
-  ) => {
+  const handleInputChange = (field: keyof Target, value: string | number, id?: number) => {
     setTargets((prev) => {
       const newTargets = [...prev];
       const targetIndex = newTargets.findIndex((t) => t.targetValueId === id);
@@ -82,38 +73,9 @@ export function UserMonthlyPerformance({
     onSubmit && onSubmit();
   };
 
-  const { appendData: changeStatusMonthData } = useQueryApiClient({
-    request: {
-      url: '/api/monthlytarget/change-status',
-      method: 'PUT',
-    },
-    onSuccess() {
-      form.resetFields();
-      setTargets([]);
-      navigate(-1);
-    },
-  });
-
-  const handleChangeStatus = (status: boolean) => {
-    const data = {
-      comment: form.getFieldValue('comment'),
-      goalId: monthlyValue?.id,
-      status,
-    };
-    changeStatusMonthData(data);
-  };
-
   useEffect(() => {
     setTarget && setTarget(targets);
   }, [targets]);
-
-  const isTeamLeader = monthlyValue?.isTeamLeader;
-  const status = monthlyValue?.status;
-
-  const isEditableByEmployee = !isTeamLeader && (status === 'Returned' || status === 'NoWrite');
-  const isCommentableByEmployee = isEditableByEmployee;
-
-  const isCommentableByLeader = isTeamLeader && status === 'PendingReview';
 
   return (
     <StyledGoalTable>
@@ -121,20 +83,6 @@ export function UserMonthlyPerformance({
         <div className="table-wrapper">
           <table className="kpi-table">
             <thead>
-              {!location.pathname.includes('yearly-goal') && (
-                <tr className="header-row">
-                  <th
-                    colSpan={4}
-                    className="main-header"
-                    dangerouslySetInnerHTML={{
-                      __html: t('goal_table_header_team_title')
-                        .replace('{year}', year?.toString() ?? newDateTime)
-                        .replace('{room}', goalAndTeam?.room || '')
-                        .replace('{team}', goalAndTeam?.team || ''),
-                    }}
-                  />
-                </tr>
-              )}
               <tr className="column-headers">
                 <th className="category-header">{t('division')}</th>
                 <th className="content-header">{t('goal_content')}</th>
@@ -145,8 +93,7 @@ export function UserMonthlyPerformance({
               {goal?.divisions?.map(
                 (division, divisionIndex) =>
                   division?.goals?.map((item, goalIndex) => {
-                    const { type, valueRatio, valueRatioStatus, valueNumber, valueText, evaluationText, status, id } =
-                      item.targetValue || {};
+                    const { type, valueText, evaluationText, status, id } = item.targetValue || {};
 
                     const currentTarget = targets.find((t) => t.targetValueId === id);
                     const isTeamLeader = monthlyValue?.isTeamLeader;
@@ -187,9 +134,7 @@ export function UserMonthlyPerformance({
                                       {valueText && <span className="mr-2">{valueText} :</span>}
                                       <textarea
                                         value={currentTarget?.valueText || ''}
-                                        onChange={(e) =>
-                                          handleInputChange(divisionIndex, goalIndex, 'valueText', e.target.value, id)
-                                        }
+                                        onChange={(e) => handleInputChange('valueText', e.target.value, id)}
                                         rows={4}
                                         className="w-full p-2 border rounded"
                                       />
@@ -202,13 +147,7 @@ export function UserMonthlyPerformance({
                                         type="number"
                                         value={currentTarget?.valueRatio || ''}
                                         onChange={(e) =>
-                                          handleInputChange(
-                                            divisionIndex,
-                                            goalIndex,
-                                            'valueRatio',
-                                            parseFloat(e.target.value) || 0,
-                                            id
-                                          )
+                                          handleInputChange('valueRatio', parseFloat(e.target.value) || 0, id)
                                         }
                                         className="w-20 p-2 border rounded"
                                       />
@@ -217,13 +156,7 @@ export function UserMonthlyPerformance({
                                         type="number"
                                         value={currentTarget?.valueRatioStatus || ''}
                                         onChange={(e) =>
-                                          handleInputChange(
-                                            divisionIndex,
-                                            goalIndex,
-                                            'valueRatioStatus',
-                                            parseFloat(e.target.value) || 0,
-                                            id
-                                          )
+                                          handleInputChange('valueRatioStatus', parseFloat(e.target.value) || 0, id)
                                         }
                                         className="w-20 p-2 border rounded"
                                       />
@@ -236,13 +169,7 @@ export function UserMonthlyPerformance({
                                         type="number"
                                         value={currentTarget?.valueNumber || ''}
                                         onChange={(e) =>
-                                          handleInputChange(
-                                            divisionIndex,
-                                            goalIndex,
-                                            'valueNumber',
-                                            parseFloat(e.target.value) || 0,
-                                            id
-                                          )
+                                          handleInputChange('valueNumber', parseFloat(e.target.value) || 0, id)
                                         }
                                         className="w-20 p-2 border rounded"
                                       />
@@ -292,25 +219,16 @@ export function UserMonthlyPerformance({
         </div>
 
         <br />
-
-        {!location.pathname.includes('team-performance') && (
-          <>
-            {monthlyValue?.monthlyTargetComment && (
-              <PerformanceCommentHistory comment={{ comments: monthlyValue?.monthlyTargetComment }} />
-            )}
-          </>
+        {monthlyValue?.monthlyTargetComment?.length > 0 && (
+          <PerformanceCommentHistory comment={{ comments: monthlyValue?.monthlyTargetComment }} />
         )}
 
-        {!location.pathname.includes('team-performance') && (
-          <>
-            {(isCommentableByLeader || isCommentableByEmployee) && (
-              <Form form={form} layout="vertical">
-                <Card className="comment-card">
-                  <TextArea name="comment" rows={4} placeholder={t('add_comment_area')} />
-                </Card>
-              </Form>
-            )}
-          </>
+        {['nowritte', 'returned'].includes(monthlyValue?.status?.toLowerCase?.() ?? '') && (
+          <Form form={form} layout="vertical">
+            <Card className="comment-card">
+              <TextArea name="comment" rows={4} placeholder={t('add_comment_area')} />
+            </Card>
+          </Form>
         )}
 
         <br />

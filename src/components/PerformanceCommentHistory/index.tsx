@@ -18,12 +18,12 @@ export function PerformanceCommentHistory({ comment }: props) {
       case 'PendingReview':
         return {
           background: '#FFF8E1',
-          color: '#FFB300', // amber text (Material amber 600)
+          color: '#FFB300',
         };
       case 'Returned':
         return {
           background: '#FDECEA', // soft red background
-          color: '#E53935', // bright red text (Material red 600)
+          color: '#E53935',
         };
       case 'Approved':
         return {

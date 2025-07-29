@@ -1,6 +1,6 @@
 import { MonthlyValue } from 'components/MonthlyValue';
 import DefaultLayout from 'layouts/DefaultLayout';
-import { Login, TeamLeaders, GoalPage, GoalByUser } from 'pages';
+import { Login, TeamMembers, RoleBasedGoals, UserGoal, TeamPerformance, MemberPerformance, Profile } from 'pages';
 import { createBrowserRouter, Navigate } from 'react-router-dom';
 import ProtectedUserRoute from 'routes/ProtectedUserRoutes';
 
@@ -18,47 +18,77 @@ export const router = createBrowserRouter([
     element: (
       <ProtectedUserRoute>
         <DefaultLayout title="team_leaders">
-          <TeamLeaders />
+          <TeamMembers />
         </DefaultLayout>
       </ProtectedUserRoute>
     ),
   },
   {
-    path: '/goal/user-id/:id/:year',
+    path: '/goal/team-leader/:year',
     element: (
       <ProtectedUserRoute>
         <DefaultLayout title="goal_setting">
-          <GoalPage />
+          <RoleBasedGoals />
         </DefaultLayout>
       </ProtectedUserRoute>
     ),
   },
   {
-    path: '/goal/user/:id/:year',
+    path: '/goal/user/:year',
     element: (
       <ProtectedUserRoute>
         <DefaultLayout title="goal_setting">
-          <GoalByUser />
+          <RoleBasedGoals />
         </DefaultLayout>
       </ProtectedUserRoute>
     ),
   },
   {
-    path: '/goal/user-performance/:id/:month/:year',
+    path: '/goal/member/:id/:year',
     element: (
       <ProtectedUserRoute>
         <DefaultLayout title="goal_setting">
+          <UserGoal />
+        </DefaultLayout>
+      </ProtectedUserRoute>
+    ),
+  },
+  {
+    path: '/goal/user-performance/:month/:year',
+    element: (
+      <ProtectedUserRoute>
+        <DefaultLayout title="team_member_performance">
           <MonthlyValue />
         </DefaultLayout>
       </ProtectedUserRoute>
     ),
   },
   {
-    path: '/goal/team-performance/:id/:month/:year',
+    path: '/goal/member-performance/:id/:month/:year',
     element: (
       <ProtectedUserRoute>
-        <DefaultLayout title="goal_setting">
-          <MonthlyValue />
+        <DefaultLayout title="member_performance">
+          <MemberPerformance />
+        </DefaultLayout>
+      </ProtectedUserRoute>
+    ),
+  },
+  {
+    path: '/goal/team-performance/:month/:year',
+    element: (
+      <ProtectedUserRoute>
+        <DefaultLayout title="team_performance">
+          <TeamPerformance />
+        </DefaultLayout>
+      </ProtectedUserRoute>
+    ),
+  },
+  {
+    path: '/profile',
+    element: (
+      <ProtectedUserRoute>
+        <DefaultLayout title="user_profile">
+          <Profile />
         </DefaultLayout>
       </ProtectedUserRoute>
     ),

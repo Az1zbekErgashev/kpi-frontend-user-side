@@ -10,4 +10,8 @@ export const StyledTeamLeadersPage = styled.div`
       border-radius: 10px;
     }
   }
+
+  .styled_header {
+    margin-top: 40px;
+  }
 `;

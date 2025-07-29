@@ -24,8 +24,9 @@ const months = [
 interface props {
   month: boolean;
   handleValueChange: (value: any) => void;
+  activeTab: string;
 }
-export function TeamLeadersFilter({ month, handleValueChange }: props) {
+export function TeamLeadersFilter({ month, handleValueChange, activeTab }: props) {
   const [form] = Form.useForm();
   const { t } = useTranslation();
   const currentYear = dayjs().year();
@@ -41,9 +42,7 @@ export function TeamLeadersFilter({ month, handleValueChange }: props) {
     if (month) initialValues.month = monthFromQuery;
 
     form.setFieldsValue(initialValues);
-
-    handleValueChange(initialValues);
-  }, [form]);
+  }, [form, activeTab]);
 
   const onValuesChange = (changed: any, all: any) => {
     const newParams = new URLSearchParams(searchParams);
@@ -61,7 +60,6 @@ export function TeamLeadersFilter({ month, handleValueChange }: props) {
     <StyledTeamLeadersList>
       <Form form={form} layout="vertical" onValuesChange={onValuesChange}>
         <DatePicker
-          defaultValue={dayjs(`${currentYear}-01-01`)}
           label={t('select_year')}
           picker="year"
           name="year"
@@ -69,13 +67,7 @@ export function TeamLeadersFilter({ month, handleValueChange }: props) {
           allowClear={false}
         />
         {month && (
-          <Select
-            style={{ width: '150px' }}
-            defaultValue={(dayjs().month() + 1).toString()}
-            placeholder={t('please_select_month')}
-            label={t('month')}
-            name="month"
-          >
+          <Select style={{ width: '150px' }} placeholder={t('please_select_month')} label={t('month')} name="month">
             {months.map((item, index) => (
               <SelectOption key={index} value={item.value}>
                 {t(item.label)}

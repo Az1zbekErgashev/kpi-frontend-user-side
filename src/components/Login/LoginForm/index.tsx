@@ -23,6 +23,7 @@ export function LoginForm() {
       navigate('/', { unstable_viewTransition: true });
       set(response.data.token, 86400);
       setUser(response.data.user);
+      localStorage.setItem('user', JSON.stringify(response.data.user));
     },
     onError() {
       form.setFields([

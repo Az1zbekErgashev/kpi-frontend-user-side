@@ -1,5 +1,8 @@
 export { Login } from './Login';
 export { HomePage } from './Home';
-export { GoalPage } from './Goal';
-export { TeamLeaders } from './TeamLeaders';
-export { GoalByUser } from './GoalByUser';
+export { TeamMembers } from './TeamMembers';
+export { RoleBasedGoals } from './TeamLeader/RoleBasedGoals';
+export { UserGoal } from './TeamLeader/UserGoal';
+export { TeamPerformance } from './TeamLeader/TeamPerformance';
+export { MemberPerformance } from './TeamLeader/MemberPerformance';
+export { Profile } from './Profile';

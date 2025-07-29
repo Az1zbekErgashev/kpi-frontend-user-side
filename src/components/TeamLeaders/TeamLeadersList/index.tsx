@@ -1,7 +1,7 @@
 import { ColumnsType } from 'antd/es/table';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { Table } from 'ui';
+import { Notification, Table } from 'ui';
 
 type Status = 'NoWritte' | 'PendingReview' | 'Returned' | 'Approved';
 
@@ -27,8 +27,9 @@ const statusColors: Record<Status, { background: string; color: string }> = {
 interface props {
   users: any;
   role: string | undefined;
+  isTeamLeader: boolean;
 }
-export function TeamLeadersList({ users, role }: props) {
+export function TeamLeadersList({ users, role, isTeamLeader }: props) {
   const { t } = useTranslation();
   const navigate = useNavigate();
 
@@ -71,6 +72,18 @@ export function TeamLeadersList({ users, role }: props) {
     return statusColors[status];
   };
 
+  const handleNavigate = (record: any) => {
+    if (role == 'TeamLeader') {
+      if (record.status === 'NoWritte' && !isTeamLeader)
+        Notification({ text: t('team_member_goal_nowritte'), type: 'error' });
+      else if (isTeamLeader) {
+        navigate(`/goal/team-leader/${record.year}`);
+      } else navigate(`/goal/member/${record.id}/${record.year}`);
+    } else {
+      navigate(`/goal/user/${record.year}`);
+    }
+  };
+
   return (
     <div>
       <div>
@@ -78,7 +91,7 @@ export function TeamLeadersList({ users, role }: props) {
       </div>
       <Table
         onRow={(record: any) => ({
-          onClick: () => navigate(`/goal/${role == 'TeamLeader' ? 'user-id' : 'user'}/${record.id}/${record.year}`),
+          onClick: () => handleNavigate(record),
         })}
         columns={columns}
         dataSource={users?.items ?? []}

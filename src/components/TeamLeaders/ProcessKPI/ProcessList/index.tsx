@@ -28,9 +28,10 @@ const statusColors: Record<Status, { background: string; color: string }> = {
 interface props {
   users: any;
   teamLeader: boolean;
+  isTeamLeader: boolean;
 }
 
-export function ProcessList({ users, teamLeader }: props) {
+export function ProcessList({ users, teamLeader, isTeamLeader }: props) {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const columns: ColumnsType = [
@@ -74,9 +75,31 @@ export function ProcessList({ users, teamLeader }: props) {
 
   const handleNavigate = (record: any) => {
     if (teamLeader) {
-      if (record.monthlyFinish) Notification({ text: t('please_fill_mobthly_target'), type: 'error' });
-      else navigate(`/goal/team-performance/${record.id}/${record.month}/${record.year}`);
-    } else navigate(`/goal/user-performance/${record.id}/${record.month}/${record.year}`);
+      if (record.monthlyFinish) {
+        Notification({ text: t('please_fill_mobthly_target'), type: 'error' });
+        return;
+      }
+
+      navigate(`/goal/team-performance/${record.month}/${record.year}`);
+      return;
+    }
+
+    if (isTeamLeader) {
+      if (!record.isGoalFinish) {
+        Notification({ text: t('please_fill_goal'), type: 'error' });
+        return;
+      }
+
+      navigate(`/goal/member-performance/${record.id}/${record.month}/${record.year}`);
+      return;
+    }
+
+    if (!record.isGoalFinish) {
+      Notification({ text: t('please_fill_goal'), type: 'error' });
+      return;
+    }
+
+    navigate(`/goal/user-performance/${record.month}/${record.year}`);
   };
 
   return (

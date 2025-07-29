@@ -1,28 +1,33 @@
 import React, { useState } from 'react';
 import { StyledMonthlyValue } from './style';
 import useQueryApiClient from 'utils/useQueryApiClient';
-import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { GoalTable } from 'components/GoalTable';
-import { EvaluationForm, GoalTableForPerformance, GradeDisplay } from 'components';
 import { useTranslation } from 'react-i18next';
 import { BackButton } from 'ui';
 import { UserMonthlyPerformance } from 'pages/UserMonthlyPerformance';
+import { Form } from 'antd';
 
 export function MonthlyValue() {
   const params = useParams();
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const location = useLocation();
   const [targets, setTargets] = useState<any>([]);
-  const [comment, setComment] = useState<any>('');
-  const { data: monthlyData } = useQueryApiClient({
+  const year = new Date().getFullYear().toString();
+  const selectedYear = params.year ?? year;
+  const [form] = Form.useForm();
+
+  const { data: monthlyData, refetch: getMonthlyData } = useQueryApiClient({
     request: {
-      url: '/api/monthlytarget',
-      data: { userId: params.id, year: params.year, month: params.month },
+      url: '/api/monthlytarget/member',
+      data: { year: params.year, month: params.month },
     },
     onError(error) {
       if (error.error == 'user_not_found') {
         navigate(-1);
+      } else if (error.error == 'teamId_or_userId_notcorrect') {
+        alert(t('team_or_user_not_correct'));
+        navigate('/', { replace: true });
       }
     },
   });
@@ -39,6 +44,9 @@ export function MonthlyValue() {
       url: '/api/monthlytarget',
       method: 'POST',
     },
+    onSuccess() {
+      getMonthlyData();
+    },
   });
 
   const { appendData: updateMonthData } = useQueryApiClient({
@@ -46,11 +54,14 @@ export function MonthlyValue() {
       url: '/api/monthlytarget',
       method: 'PUT',
     },
+    onSuccess() {
+      getMonthlyData();
+    },
   });
 
   const onSubmit = () => {
     const data = {
-      comment,
+      comment: form.getFieldValue('comment'),
       targets,
       goalId: monthlyData?.data?.goal?.id,
       month: params.month,
@@ -65,35 +76,25 @@ export function MonthlyValue() {
 
   return (
     <StyledMonthlyValue>
-      <div>
-        <BackButton color="black" onClick={() => navigate(-1)} label={t('back')} />
+      <div className="styled_header">
+        <BackButton onClick={() => navigate(-1)} color="black" label={t('back')} />
+        <h1 className="title">
+          {t('performance_page_title_with_room')
+            .replace('{year}', selectedYear)
+            .replace('{team}', teamAndRoom?.data?.team ?? '')}
+        </h1>
       </div>
       <GoalTable goal={monthlyData?.data?.goal} roleType="TEAM_LEADER" goalAndTeam={teamAndRoom?.data} />
       <br />
-      {monthlyData?.data?.isTeamLeader ? (
-        <GoalTableForPerformance
-          onSubmit={onSubmit}
-          goal={monthlyData?.data?.goal}
-          roleType="TEAM_LEADER"
-          goalAndTeam={teamAndRoom?.data}
-          monthlyValue={monthlyData?.data}
-          setTarget={setTargets}
-        />
-      ) : (
-        <UserMonthlyPerformance
-          onSubmit={onSubmit}
-          goal={monthlyData?.data?.goal}
-          roleType="TEAM_LEADER"
-          goalAndTeam={teamAndRoom?.data}
-          monthlyValue={monthlyData?.data}
-          setTarget={setTargets}
-        />
-      )}
-
-      {location.pathname.includes('/goal/team-performance') && (
-        <EvaluationForm onSubmit={onSubmit} monthlyValue={monthlyData?.data} setComment={setComment} />
-      )}
-      {location.pathname.includes('/goal/team-performance') && <GradeDisplay />}
+      <UserMonthlyPerformance
+        onSubmit={onSubmit}
+        goal={monthlyData?.data?.goal}
+        roleType="TEAM_LEADER"
+        goalAndTeam={teamAndRoom?.data}
+        monthlyValue={monthlyData?.data}
+        setTarget={setTargets}
+        form={form}
+      />
     </StyledMonthlyValue>
   );
 }

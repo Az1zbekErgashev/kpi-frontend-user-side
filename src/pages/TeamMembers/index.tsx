@@ -3,7 +3,7 @@ import { StyledTeamLeadersPage } from './style';
 import { TeamLeadersTabs } from 'components';
 import { useTranslation } from 'react-i18next';
 
-export function TeamLeaders() {
+export function TeamMembers() {
   const { t } = useTranslation();
 
   return (

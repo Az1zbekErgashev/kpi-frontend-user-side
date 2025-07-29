@@ -1,5 +1,6 @@
 import { Col, Divider, Form, Radio, Row } from 'antd';
 import { FormInstance } from 'antd/lib';
+import { useUser } from 'hooks/useUserState';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Input, Modal, Select, SelectOption, TextArea } from 'ui';
@@ -25,6 +26,9 @@ export function GoalFormModal({
   handleKeyDown,
 }: props) {
   const { t } = useTranslation();
+  const { user } = useUser();
+
+  console.log(user);
 
   const renderTargetValueFields = () => {
     switch (selectedTargetType) {
@@ -101,7 +105,12 @@ export function GoalFormModal({
 
         <Form.Item name="type" label={t('target_type')} rules={[{ required: true, message: t('please_choose_value') }]}>
           <Radio.Group onChange={handleTargetTypeChange} className="target-type-radio">
-            {TARGET_TYPES?.map(({ value, label, icon }) => (
+            {TARGET_TYPES.filter(({ value }) => {
+              if (user?.role === 'TeamMember') {
+                return value !== 'LeaderEvaluation' && value !== 'IndividualEvaluation';
+              }
+              return true;
+            }).map(({ value, label, icon }) => (
               <Radio key={value} value={value} className="target-type-option">
                 <span className="target-type-icon">{icon}</span>
                 <span className="target-type-label">{t(label)}</span>

@@ -14,7 +14,7 @@ interface props {
   createGoal: any;
   updateGoal: any;
   goal: any;
-  setFormStatus: any;
+  setFormStatus?: any;
 }
 export function GoalForm({ goal, createGoal, updateGoal, type, setFormStatus }: props) {
   const [form] = Form.useForm();
