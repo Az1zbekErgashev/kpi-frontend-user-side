@@ -95,7 +95,7 @@ export function ProcessList({ users, teamLeader, isTeamLeader }: props) {
     }
 
     if (!record.isGoalFinish) {
-      Notification({ text: t('please_fill_goal'), type: 'error' });
+      Notification({ text: t('please_fill_member_goal'), type: 'error' });
       return;
     }
 

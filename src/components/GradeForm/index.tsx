@@ -25,12 +25,15 @@ interface ApiResponse {
         [period: number]: string | null;
       };
     };
-    finalScore: number | null; // Numerical annual grade
+    finalScore: number | null;
+    finalGrade?: string; // Numerical annual grade
     divisions: {
       divisionId: string;
       average: number;
       adjusted: number;
       weighted: number;
+      ratio?: number;
+      grade?: string;
     }[];
   }[];
   evaluationPeriods: {
@@ -45,7 +48,6 @@ interface ApiResponse {
     gradeDistribution: Record<string, number>;
   };
 }
-
 const generateDivisionColor = (index: number) => {
   const colors = [
     { bg: '#fef3c7', text: '#92400e' }, // Yellow
@@ -143,8 +145,26 @@ export function GradeDisplay() {
                   </th>
                 ))}
                 <th rowSpan={3} className="annual-header">
-                  Annual Grade
+                  <div className="category-content">
+                    <div className="category-name">{t('final_result')}</div>
+                    <div className="category-percentage">100%</div>
+                  </div>
                 </th>
+
+                {(() => {
+                  const missingDiv = data?.students
+                    .flatMap((student) => student.divisions)
+                    .find((divs) => !data.evaluationPeriods?.some((div) => div.id === divs.divisionId));
+
+                  return missingDiv ? (
+                    <th rowSpan={3} className="annual-header">
+                      <div className="category-content">
+                        <div className="category-name mission-content">{missingDiv.divisionId}</div>
+                        <div className="category-percentage">{missingDiv.ratio}%</div>
+                      </div>
+                    </th>
+                  ) : null;
+                })()}
               </tr>
 
               <tr className="period-header">
@@ -184,7 +204,6 @@ export function GradeDisplay() {
                     <td className="student-info-cell">
                       <div className="student-details">
                         <div className="student-main">
-                          <span className="room">{student.room}</span>
                           <span className="name">{student.name}</span>
                         </div>
                         <div className="student-secondary">
@@ -213,11 +232,22 @@ export function GradeDisplay() {
                       })
                     )}
 
-                    {/* Annual Grade */}
                     <td className="annual-cell">
                       <div className="annual-grade">{student.finalScore ?? '-'}</div>
-                      <div className="annual-label">Final</div>
+                      <div className="annual-label final-grade">{student.finalGrade}</div>
                     </td>
+                    {(() => {
+                      const missingDiv = student.divisions.find(
+                        (divs) => !data.evaluationPeriods?.some((div) => div.id === divs.divisionId)
+                      );
+
+                      return missingDiv ? (
+                        <td className="annual-cell">
+                          <div className="annual-grade">{missingDiv.weighted ?? '-'}</div>
+                          <div className="annual-label final-grade">{missingDiv.grade}</div>
+                        </td>
+                      ) : null;
+                    })()}
                   </tr>
 
                   {/* Student AVG row */}

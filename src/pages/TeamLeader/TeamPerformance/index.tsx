@@ -36,6 +36,9 @@ export function TeamPerformance() {
       } else if (error.error == 'teamId_or_userId_notcorrect') {
         alert(t('team_or_user_not_correct'));
         navigate('/', { replace: true });
+      } else if (error.error == 'goal_not_found') {
+        alert(t('please_fill_goal_first'));
+        navigate('/', { replace: true });
       }
     },
   });
