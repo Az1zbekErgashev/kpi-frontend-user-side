@@ -86,9 +86,6 @@ export function TeamLeadersList({ users, role, isTeamLeader }: props) {
 
   return (
     <div>
-      <div>
-        <h1>2024 WSU 2nd Team KPI Establishment Progress</h1>
-      </div>
       <Table
         onRow={(record: any) => ({
           onClick: () => handleNavigate(record),
