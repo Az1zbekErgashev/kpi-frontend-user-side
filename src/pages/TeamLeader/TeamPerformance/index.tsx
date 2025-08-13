@@ -130,127 +130,137 @@ export function TeamPerformance() {
               </tr>
             </thead>
             <tbody>
-              {monthlyData?.data?.goal?.divisions?.map(
-                (division: any, divisionIndex: number) =>
-                  division?.goals?.map((item: any, goalIndex: number) => {
-                    const { type, valueText, evaluationText, status, id } = item.targetValue || {};
+              {Object.values(
+                (monthlyData?.data?.goal?.divisions || []).reduce((acc: any, curr: any) => {
+                  const key = `${curr.name}-${curr.ratio}`;
+                  if (!acc[key]) {
+                    acc[key] = { ...curr, goals: [...curr.goals] };
+                  } else {
+                    acc[key].goals.push(...curr.goals);
+                  }
+                  return acc;
+                }, {})
+              ).map((division: any, divisionIndex: number) =>
+                division.goals.map((item: any, goalIndex: number) => {
+                  const { type, valueText, evaluationText, status, id } = item.targetValue || {};
+                  const currentTarget = targets.find((t: any) => t.targetValueId === id);
 
-                    const currentTarget = targets.find((t: any) => t.targetValueId === id);
+                  const canEditField = (fieldType: string) => {
+                    if (fieldType === 'IndividualEvaluation' || fieldType === 'LeaderEvaluation') return false;
+                    return true;
+                  };
 
-                    const canEditField = (fieldType: string) => {
-                      if (fieldType === 'IndividualEvaluation' || fieldType === 'LeaderEvaluation') return false;
-                      return true;
-                    };
+                  const isEditable =
+                    monthlyData?.data?.status !== 'Approved' && monthlyData?.data?.status !== 'PendingReview';
 
-                    const isEditable =
-                      monthlyData?.data?.status !== 'Approved' && monthlyData?.data?.status !== 'PendingReview';
-
-                    return (
-                      <tr
-                        key={`${division.id}-${goalIndex}`}
-                        className={divisionIndex % 2 === 0 ? 'even-row' : 'odd-row'}
-                      >
-                        {goalIndex === 0 && (
-                          <td className="category-cell" rowSpan={division.goals.length}>
-                            {division.name}
-                          </td>
-                        )}
+                  return (
+                    <tr
+                      key={`${division.name}-${goalIndex}`}
+                      className={divisionIndex % 2 === 0 ? 'even-row' : 'odd-row'}
+                    >
+                      {goalIndex === 0 && (
+                        <td className="category-cell" rowSpan={division.goals.length}>
+                          {division.name}
+                        </td>
+                      )}
+                      {goalIndex === 0 && (
                         <td className="ratio-cell" rowSpan={division.goals.length}>
                           {division.ratio}
                         </td>
-                        <td className="content-cell">
-                          <div className="goal-content">
-                            <span className="checkmark">✓</span>
-                            <span className="goal-text">{item.goalContent}</span>
-                          </div>
-                        </td>
-                        <td className="target-cell">
-                          <div className="target-content">
-                            {canEditField(type) && isEditable ? (
-                              <>
-                                {type === 'TextType' ? (
-                                  <div className="flex items-center">
-                                    {valueText && <span className="mr-2">{valueText} :</span>}
-                                    <textarea
-                                      value={currentTarget?.valueText || ''}
-                                      onChange={(e) => handleInputChange('valueText', e.target.value, id)}
-                                      rows={4}
-                                      className="w-full p-2 border rounded"
-                                    />
-                                    <input type="hidden" value={currentTarget?.id || ''} name={`hidden_id_${id}`} />
-                                  </div>
-                                ) : type === 'RatioType' ? (
-                                  <div className="flex items-center">
-                                    <div>{valueText}</div>
-                                    <input
-                                      type="number"
-                                      value={currentTarget?.valueRatio || ''}
-                                      onChange={(e) =>
-                                        handleInputChange('valueRatio', parseFloat(e.target.value) || 0, id)
-                                      }
-                                      className="w-20 p-2 border rounded"
-                                    />
-                                    <span>/</span>
-                                    <input
-                                      type="number"
-                                      value={currentTarget?.valueRatioStatus || ''}
-                                      onChange={(e) =>
-                                        handleInputChange('valueRatioStatus', parseFloat(e.target.value) || 0, id)
-                                      }
-                                      className="w-20 p-2 border rounded"
-                                    />
-                                    <input type="hidden" value={currentTarget?.id || ''} name={`hidden_id_${id}`} />
-                                  </div>
-                                ) : (
-                                  <div className="flex items-center gap-2">
-                                    <div>{valueText}</div>
-                                    <input
-                                      type="number"
-                                      value={currentTarget?.valueNumber || ''}
-                                      onChange={(e) =>
-                                        handleInputChange('valueNumber', parseFloat(e.target.value) || 0, id)
-                                      }
-                                      className="w-20 p-2 border rounded"
-                                    />
-                                    <span>{status ? t(status) : ''}</span>
-                                    <input type="hidden" value={currentTarget?.id || ''} name={`hidden_id_${id}`} />
-                                  </div>
-                                )}
-                              </>
-                            ) : (
-                              <div className="target-text">
-                                {type === 'RatioType' && (
-                                  <>
-                                    {valueText || currentTarget?.valueText || ''}: {currentTarget?.valueRatio ?? 0}/
-                                    {currentTarget?.valueRatioStatus ?? 0}
-                                    {status && ` ${t(status)}`}
-                                  </>
-                                )}
+                      )}
+                      <td className="content-cell">
+                        <div className="goal-content">
+                          <span className="checkmark">✓</span>
+                          <span className="goal-text">{item.goalContent}</span>
+                        </div>
+                      </td>
+                      <td className="target-cell">
+                        <div className="target-content">
+                          {canEditField(type) && isEditable ? (
+                            <>
+                              {type === 'TextType' ? (
+                                <div className="flex items-center">
+                                  {valueText && <span className="mr-2">{valueText} :</span>}
+                                  <textarea
+                                    value={currentTarget?.valueText || ''}
+                                    onChange={(e) => handleInputChange('valueText', e.target.value, id)}
+                                    rows={4}
+                                    className="w-full p-2 border rounded"
+                                  />
+                                  <input type="hidden" value={currentTarget?.id || ''} name={`hidden_id_${id}`} />
+                                </div>
+                              ) : type === 'RatioType' ? (
+                                <div className="flex items-center">
+                                  <div>{valueText}</div>
+                                  <input
+                                    type="number"
+                                    value={currentTarget?.valueRatio || ''}
+                                    onChange={(e) =>
+                                      handleInputChange('valueRatio', parseFloat(e.target.value) || 0, id)
+                                    }
+                                    className="w-20 p-2 border rounded"
+                                  />
+                                  <span>/</span>
+                                  <input
+                                    type="number"
+                                    value={currentTarget?.valueRatioStatus || ''}
+                                    onChange={(e) =>
+                                      handleInputChange('valueRatioStatus', parseFloat(e.target.value) || 0, id)
+                                    }
+                                    className="w-20 p-2 border rounded"
+                                  />
+                                  <input type="hidden" value={currentTarget?.id || ''} name={`hidden_id_${id}`} />
+                                </div>
+                              ) : (
+                                <div className="flex items-center gap-2">
+                                  <div>{valueText}</div>
+                                  <input
+                                    type="number"
+                                    value={currentTarget?.valueNumber || ''}
+                                    onChange={(e) =>
+                                      handleInputChange('valueNumber', parseFloat(e.target.value) || 0, id)
+                                    }
+                                    className="w-20 p-2 border rounded"
+                                  />
+                                  <span>{status ? t(status) : ''}</span>
+                                  <input type="hidden" value={currentTarget?.id || ''} name={`hidden_id_${id}`} />
+                                </div>
+                              )}
+                            </>
+                          ) : (
+                            <div className="target-text">
+                              {type === 'RatioType' && (
+                                <>
+                                  {valueText || currentTarget?.valueText || ''}: {currentTarget?.valueRatio ?? 0}/
+                                  {currentTarget?.valueRatioStatus ?? 0}
+                                  {status && ` ${t(status)}`}
+                                </>
+                              )}
 
-                                {type === 'NumberOfTimesType' && (
-                                  <>
-                                    {valueText || currentTarget?.valueText || ''}: {currentTarget?.valueNumber ?? 0}
-                                    {status && ` ${t(status)}`}
-                                  </>
-                                )}
+                              {type === 'NumberOfTimesType' && (
+                                <>
+                                  {valueText || currentTarget?.valueText || ''}: {currentTarget?.valueNumber ?? 0}
+                                  {status && ` ${t(status)}`}
+                                </>
+                              )}
 
-                                {type === 'TextType' && <>{currentTarget?.valueText || t('text_type')}</>}
+                              {type === 'TextType' && <>{currentTarget?.valueText || t('text_type')}</>}
 
-                                {(type === 'IndividualEvaluation' || type === 'LeaderEvaluation') && (
-                                  <>
-                                    {type === 'IndividualEvaluation'
-                                      ? t('[individual_evaluation]')
-                                      : t('[leader_evaluation]')}
-                                    {evaluationText ? ` ${evaluationText}` : ''}
-                                  </>
-                                )}
-                              </div>
-                            )}
-                          </div>
-                        </td>
-                      </tr>
-                    );
-                  })
+                              {(type === 'IndividualEvaluation' || type === 'LeaderEvaluation') && (
+                                <>
+                                  {type === 'IndividualEvaluation'
+                                    ? t('[individual_evaluation]')
+                                    : t('[leader_evaluation]')}
+                                  {evaluationText ? ` ${evaluationText}` : ''}
+                                </>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })
               )}
             </tbody>
           </table>
