@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from 'react';
 import { StyledEvaluationForm } from './style';
-import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import useQueryApiClient from 'utils/useQueryApiClient';
 import { EvaluationModalConfig, PerformanceCommentHistory } from 'components';
 import { Card, Form, FormInstance } from 'antd';
@@ -62,6 +62,8 @@ interface props {
 }
 export function EvaluationForm({ monthlyValue, onSubmit, form, getMonthlyData }: props) {
   const params = useParams();
+  const [employeeData, setEmployeeData] = useState<any | null>(null);
+  const [teamLeaderEvaluation, setTeamLeaderEvaluation] = useState<any | null>(null);
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [evaluations, setEvaluations] = useState<EvaluationInput[]>([]);
   const [divisions, setDivisions] = useState<DivisionEvaluation[]>([]);
@@ -168,6 +170,23 @@ export function EvaluationForm({ monthlyValue, onSubmit, form, getMonthlyData }:
         });
       });
 
+      if (teamLeaderEvaluation && teamLeaderEvaluation.divisionEvaluations) {
+        teamLeaderEvaluation.divisionEvaluations.forEach((division: any) => {
+          submitData.push({
+            id: division.id || 0,
+            userId: teamLeaderEvaluation.employeeId,
+            kpiDivisionId: division.kpiDivisionId,
+            year: params?.year,
+            month: params?.month,
+            scoreId: division.scoreId,
+            grade: division.grade,
+            comment: division.comment || '',
+          });
+        });
+      }
+
+      console.log(submitData);
+
       appendData(submitData);
       onSubmit && onSubmit();
     } catch (error) {
@@ -196,6 +215,29 @@ export function EvaluationForm({ monthlyValue, onSubmit, form, getMonthlyData }:
       url: `/api/evaluation/all-score?year=${params.year}`,
     },
   });
+
+  const {} = useQueryApiClient({
+    request: {
+      url: `/api/evaluation/team-leader?Year=${params.year}&Month=${params.month}`,
+    },
+    onSuccess: (response) => {
+      setEmployeeData(response?.data[0]);
+      setTeamLeaderEvaluation(response?.data[0]);
+    },
+  });
+
+  const handleChangeTeamLeader = (kpiDivisionId: number, field: 'scoreId' | 'comment', value: string | number) => {
+    if (!teamLeaderEvaluation) return;
+
+    const updated = {
+      ...teamLeaderEvaluation,
+      divisionEvaluations: teamLeaderEvaluation.divisionEvaluations.map((div: any) =>
+        div.kpiDivisionId === kpiDivisionId ? { ...div, [field]: value } : div
+      ),
+    };
+
+    setTeamLeaderEvaluation(updated);
+  };
 
   const scoresMap = useMemo(() => {
     const map: { [divisionId: number]: { grade: string; score: number; scoreId: number }[] } = {};
@@ -336,6 +378,75 @@ export function EvaluationForm({ monthlyValue, onSubmit, form, getMonthlyData }:
               </div>
             </section>
           ))}
+        </main>
+        <main className="evaluation-grid">
+          <section key={employeeData?.employeeId} className="evaluation-card">
+            <header className="card-header">
+              <div className="category-info">
+                <h2 className="category-name">{employeeData?.fullName}</h2>
+                <span>{t(employeeData?.role ?? '')}</span>
+              </div>
+            </header>
+
+            <div className="card-content">
+              <table className="assessment-table">
+                <thead className="table-header">
+                  <tr>
+                    <th className="th-index">№</th>
+                    <th className="th-employee">Division</th>
+                    <th className="th-grade">Grade</th>
+                    <th className="th-comments">Comments</th>
+                  </tr>
+                </thead>
+                <tbody className="table-body">
+                  {teamLeaderEvaluation?.divisionEvaluations?.map((division: any, i: number) => (
+                    <tr key={division.id} className="employee-row">
+                      <td className="cell-index">
+                        <span className="index-number">{i + 1}</span>
+                        <input
+                          type="hidden"
+                          name={`evaluation_${teamLeaderEvaluation.employeeId}_${division.kpiDivisionId}_id`}
+                          value={division.id}
+                        />
+                      </td>
+                      <td className="cell-employee">
+                        <div className="employee-details">
+                          <div className="employee-name">{division.divisionName}</div>
+                        </div>
+                      </td>
+                      <td className="cell-grade">
+                        <select
+                          className="grade-selector"
+                          value={division.scoreId ?? ''}
+                          onChange={(e) =>
+                            handleChangeTeamLeader(division.kpiDivisionId, 'scoreId', Number(e.target.value))
+                          }
+                          disabled={monthlyValue?.status === 'Approved' || monthlyValue?.status === 'PendingReview'}
+                        >
+                          <option value="">-</option>
+                          {(scoresMap[division.kpiDivisionId] || []).map((scoreItem) => (
+                            <option key={scoreItem.scoreId} value={scoreItem.scoreId}>
+                              {scoreItem?.grade?.toUpperCase()}
+                            </option>
+                          ))}
+                        </select>
+                      </td>
+                      <td className="cell-comments">
+                        <textarea
+                          className="comment-field"
+                          value={division.comment || ''}
+                          onChange={(e) => handleChangeTeamLeader(division.kpiDivisionId, 'comment', e.target.value)}
+                          placeholder={`Enter assessment for ${division.divisionName}...`}
+                          rows={3}
+                          disabled={monthlyValue?.status === 'Approved' || monthlyValue?.status === 'PendingReview'}
+                        />
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </section>
         </main>
 
         {monthlyValue?.monthlyTargetComment?.length > 0 && (

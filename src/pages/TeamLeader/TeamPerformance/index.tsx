@@ -274,7 +274,8 @@ export function TeamPerformance() {
         onSubmit={onSubmit}
         form={form}
       />
-      <GradeDisplay />
+      <GradeDisplay teamEvaluation={false} />
+      <GradeDisplay teamEvaluation={true} />
     </div>
   );
 }

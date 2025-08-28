@@ -50,22 +50,26 @@ interface ApiResponse {
 }
 const generateDivisionColor = (index: number) => {
   const colors = [
-    { bg: '#fef3c7', text: '#92400e' }, // Yellow
-    { bg: '#dbeafe', text: '#1e40af' }, // Blue
-    { bg: '#f3e8ff', text: '#7c3aed' }, // Purple
-    { bg: '#dcfce7', text: '#166534' }, // Green
-    { bg: '#fce7f3', text: '#be185d' }, // Pink
-    { bg: '#ecfdf5', text: '#059669' }, // Light Green
-    { bg: '#fef2f2', text: '#dc2626' }, // Light Red
-    { bg: '#f0f9ff', text: '#0369a1' }, // Light Blue
-    { bg: '#fffbeb', text: '#d97706' }, // Orange
-    { bg: '#f5f3ff', text: '#6366f1' }, // Indigo
+    { bg: '#fef3c7', text: '#92400e' },
+    { bg: '#dbeafe', text: '#1e40af' },
+    { bg: '#f3e8ff', text: '#7c3aed' },
+    { bg: '#dcfce7', text: '#166534' },
+    { bg: '#fce7f3', text: '#be185d' },
+    { bg: '#ecfdf5', text: '#059669' },
+    { bg: '#fef2f2', text: '#dc2626' },
+    { bg: '#f0f9ff', text: '#0369a1' },
+    { bg: '#fffbeb', text: '#d97706' },
+    { bg: '#f5f3ff', text: '#6366f1' },
   ];
 
   return colors[index % colors.length];
 };
 
-export function GradeDisplay() {
+interface props {
+  teamEvaluation: boolean;
+}
+
+export function GradeDisplay({ teamEvaluation }: props) {
   const [data, setData] = useState<ApiResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -74,7 +78,9 @@ export function GradeDisplay() {
 
   const {} = useQueryApiClient({
     request: {
-      url: `/api/evaluation/all-evaluation?year=${params.year}`,
+      url: !teamEvaluation
+        ? `/api/evaluation/all-evaluation?year=${params.year}`
+        : `/api/evaluation/evaluation-by-year-team?year=${params.year}`,
     },
     onSuccess(response) {
       setData(response.data);
@@ -87,7 +93,6 @@ export function GradeDisplay() {
     },
   });
 
-  // Get grade for specific student, period, and evaluation
   const getGrade = (student: ApiResponse['students'][0], evaluationId: string, period: number): string => {
     return student.grades[evaluationId]?.[period] || '-';
   };
@@ -198,9 +203,7 @@ export function GradeDisplay() {
             <tbody>
               {data.students.map((student) => (
                 <React.Fragment key={student.id}>
-                  {/* Student grades row */}
                   <tr className="student-row">
-                    {/* Student Information */}
                     <td className="student-info-cell">
                       <div className="student-details">
                         <div className="student-main">
@@ -216,7 +219,6 @@ export function GradeDisplay() {
                       </div>
                     </td>
 
-                    {/* Grade cells for each evaluation period */}
                     {data.evaluationPeriods.map((evaluation) =>
                       evaluation.periods.map((period) => {
                         const grade = getGrade(student, evaluation.id, period);
@@ -250,16 +252,12 @@ export function GradeDisplay() {
                     })()}
                   </tr>
 
-                  {/* Student AVG row */}
                   <tr className="student-avg-row">
-                    {/* AVG label cell */}
                     <td className="avg-label-cell">
                       <div className="avg-student-label">AVG</div>
                     </td>
 
-                    {/* AVG values for each division - centered in middle of division */}
                     {data.evaluationPeriods.map((evaluation) => {
-                      // Find the avg value for this division for this specific student
                       const avgValue = student.divisions?.find((div) => div.divisionId === evaluation.id)?.average || 0;
                       const divisionLength = evaluation.periods.length;
                       const middleIndex = Math.floor(divisionLength / 2);
@@ -274,8 +272,6 @@ export function GradeDisplay() {
                         </td>
                       ));
                     })}
-
-                    {/* No Annual Grade cell in AVG row */}
                   </tr>
                 </React.Fragment>
               ))}
