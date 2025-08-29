@@ -161,10 +161,12 @@ export function GradeDisplay({ teamEvaluation }: props) {
                     .flatMap((student) => student.divisions)
                     .find((divs) => !data.evaluationPeriods?.some((div) => div.id === divs.divisionId));
 
+                  console.log(missingDiv);
+
                   return missingDiv ? (
                     <th rowSpan={3} className="annual-header">
                       <div className="category-content">
-                        <div className="category-name mission-content">{missingDiv.divisionId}</div>
+                        <div className="category-name mission-content">{t('joined_division')}</div>
                         <div className="category-percentage">{missingDiv.ratio}%</div>
                       </div>
                     </th>
