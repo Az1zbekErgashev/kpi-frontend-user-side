@@ -175,7 +175,7 @@ export function Profile() {
             <div className="footer-info">
               {profile?.data?.updatedAt && (
                 <p>
-                  {t('last_update')}: {dayjs(profile.data.updatedAt).format('YYYY.MM.DD')}
+                  {t('last_update')}: {profile.data.updatedAt}
                 </p>
               )}
 
