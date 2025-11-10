@@ -58,7 +58,7 @@ export function GoalFormModal({
                 initialValue={t('More')}
                 showSearch={false}
                 name="status"
-                label="Условие"
+                label={t('status')}
               >
                 {STATUS_OPTIONS.map(({ value, label }) => (
                   <SelectOption key={value} value={value}>
