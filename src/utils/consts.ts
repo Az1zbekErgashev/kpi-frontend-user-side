@@ -28,7 +28,7 @@ export const TARGET_TYPES = [
 export const STATUS_OPTIONS = [
   { value: 'More', label: 'More' },
   { value: 'Agreement', label: 'Agreement' },
-  { value: 'Below', label: 'Below' },
+  // { value: 'Below', label: 'Below' },
   { value: 'Under', label: 'Under' },
   { value: 'Over', label: 'Over' },
 ];

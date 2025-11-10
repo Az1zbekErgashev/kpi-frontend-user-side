@@ -18,33 +18,8 @@ interface ModalConfig {
 
 interface props {
   modalConfig: ModalConfig;
-  setModalConfig: React.Dispatch<
-    React.SetStateAction<{
-      userId?: number;
-      month?: string;
-      year?: string;
-      open: boolean;
-      userName?: string;
-      position?: string;
-      role?: string;
-    }>
-  >;
+  setModalConfig: React.Dispatch<React.SetStateAction<ModalConfig>>;
 }
-
-const months = [
-  { value: '0', label: 'January' },
-  { value: '1', label: 'February' },
-  { value: '2', label: 'March' },
-  { value: '3', label: 'April' },
-  { value: '4', label: 'May' },
-  { value: '5', label: 'June' },
-  { value: '6', label: 'July' },
-  { value: '7', label: 'August' },
-  { value: '8', label: 'September' },
-  { value: '9', label: 'October' },
-  { value: '10', label: 'November' },
-  { value: '11', label: 'December' },
-];
 
 export function EvaluationModalConfig({ modalConfig, setModalConfig }: props) {
   const { t } = useTranslation();
@@ -54,6 +29,22 @@ export function EvaluationModalConfig({ modalConfig, setModalConfig }: props) {
     month: modalConfig.month,
     year: modalConfig.year,
   });
+
+  const months = [
+    { value: '1', label: t('january') },
+    { value: '2', label: t('february') },
+    { value: '3', label: t('march') },
+    { value: '4', label: t('april') },
+    { value: '5', label: t('may') },
+    { value: '6', label: t('june') },
+    { value: '7', label: t('july') },
+    { value: '8', label: t('august') },
+    { value: '9', label: t('september') },
+    { value: '10', label: t('october') },
+    { value: '11', label: t('november') },
+    { value: '12', label: t('december') },
+  ];
+
   const onValuesChange = (value: any) => {
     setQueryParams((prev: any) => ({
       ...prev,
@@ -140,7 +131,7 @@ export function EvaluationModalConfig({ modalConfig, setModalConfig }: props) {
               <Select style={{ width: '150px' }} placeholder={t('please_select_month')} label={t('month')} name="month">
                 {months.map((item, index) => (
                   <SelectOption key={index} value={item.value}>
-                    {t(item.label)}
+                    {item.label}
                   </SelectOption>
                 ))}
               </Select>
