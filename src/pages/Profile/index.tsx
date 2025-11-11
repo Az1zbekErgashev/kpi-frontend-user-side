@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { StyledProfile } from './style';
-import { Button, Checkbox, Input, Select, SelectOption } from 'ui';
+import { Button, Checkbox, Input, Select, SelectOption, Notification } from 'ui';
 import { useTranslation } from 'react-i18next';
 import { Form } from 'antd';
 import { useNavigate } from 'react-router-dom';
@@ -23,7 +23,7 @@ export function Profile() {
     </svg>
   );
 
-  const { data: profile } = useQueryApiClient({
+  const { data: profile, refetch: refetchProfile } = useQueryApiClient({
     request: {
       url: '/api/user/profile',
       method: 'GET',
@@ -46,6 +46,10 @@ export function Profile() {
     request: {
       url: '/api/user',
       method: 'PUT',
+    },
+    onSuccess(response) {
+     Notification({ text: t('profile_updated'), type: 'success' });
+     refetchProfile();
     },
     onError(error) {
       if (error.error == 'old_password_not_correct') {
